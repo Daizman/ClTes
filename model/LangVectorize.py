@@ -18,6 +18,7 @@ class LangVectorize:
     def __init__(self, lang, settings):
         self.lang = lang
         self.settings = settings
+        self.__tokenizer = RULangTokenize(self.settings) if self.lang == Lang.RUS else ENGLangTokenize(self.settings)
 
     def vect(self, model, corpus, stem, lem, use_sw, use_nltk,  min_cnt=0, max_features=None, max_df=1.0, binary=False):
         min_df = min_cnt
@@ -79,16 +80,15 @@ class LangVectorize:
         return vectorizer.fit_transform(corpus)
 
     def tf(self, corpus, stem, lem, use_sw, use_nltk,  min_cnt=0, max_features=None, max_df=1.0):
-        return SKLEARNVectorizer.vect(CountVectorizer, corpus, stem, lem, use_sw, use_nltk, min_cnt, max_features, max_df)
+        return self.vect(CountVectorizer, corpus, stem, lem, use_sw, use_nltk, min_cnt, max_features, max_df)
 
     def oh(self, corpus, stem, lem, use_sw, use_nltk,  min_cnt=0, max_features=None, max_df=1.0):
-        return SKLEARNVectorizer.vect(CountVectorizer, corpus, stem, lem, use_sw, use_nltk,  min_cnt, max_features, max_df, True)
+        return self.vect(CountVectorizer, corpus, stem, lem, use_sw, use_nltk,  min_cnt, max_features, max_df, True)
 
     def tfidf(self, corpus, stem, lem, use_sw, use_nltk,  min_cnt=0, max_features=None, max_df=1.0):
-        return SKLEARNVectorizer.vect(TfidfVectorizer, corpus, stem, lem, use_sw, use_nltk, min_cnt, max_features, max_df)
+        return self.vect(TfidfVectorizer, corpus, stem, lem, use_sw, use_nltk, min_cnt, max_features, max_df)
 
     def hash(self, corpus, stem, lem, use_sw, use_nltk, max_features):
-        tokenizer = Tokenizer()
         if max_features is None:
             max_features = 2**20
         if stem:
@@ -124,26 +124,34 @@ class LangVectorize:
         return vectorizer.fit_transform(corpus)
 
     def distribution(self, corpus):
-        tokernizer = RULangTokenize(self.settings) if self.lang == Lang.RUS else ENGLangTokenize(self.settings)
         if self.settings.useStem:
-            docs = tokernizer.tokenize(corpus, TokenizerType.STEM)
+            docs = self.__tokenizer.tokenize(corpus, TokenizerType.STEM)
         elif self.settings.useLem:
-            docs = tokernizer.tokenize(corpus, TokenizerType.LEM)
+            docs = self.__tokenizer.tokenize(corpus, TokenizerType.LEM)
         else:
-            docs = tokernizer.tokenize(corpus)
+            docs = self.__tokenizer.tokenize(corpus)
 
         tagged_docs = [
             TaggedDocument(words, ['d{}'.format(idx)])
             for idx, words in enumerate(docs)
         ]
 
-
-        if self.settings.max is not None:
-            model = Doc2Vec(tagged_docs, vector_size=max_features, min_count=min_cnt, epochs=epoch_cnt, workers=4)
+        if self.settings.maxDictSize is not None:
+            if self.settings.maxIters is not None:
+                model = Doc2Vec(tagged_docs,
+                                vector_size=self.settings.maxDictSize,
+                                min_count=self.settings.minWordCnt,
+                                epochs=self.settings.maxIters,
+                                workers=4)
+            else:
+                model = Doc2Vec(tagged_docs,
+                                vector_size=self.settings.maxDictSize,
+                                min_count=self.settings.minWordCnt,
+                                workers=4)
         else:
-            model = Doc2Vec(tagged_docs, min_count=min_cnt, epochs=epoch_cnt, workers=4)
-        vectors = []
-        for i in range(model.docvecs.count):
-            vectors.append(model.docvecs[i])
+            if self.settings.maxIters is not None:
+                model = Doc2Vec(tagged_docs, min_count=self.settings.minWordCnt, epochs=self.settings.maxIters, workers=4)
+            else:
+                model = Doc2Vec(tagged_docs, min_count=self.settings.minWordCnt, workers=4)
 
-        return vectors
+        return [it for it in model.docvecs]
