@@ -20,60 +20,100 @@ class LangVectorize:
         self.__tokenizer = RULangTokenize(self.settings) if self.lang == Lang.RUS else ENGLangTokenize(self.settings)
 
     def vect(self, model, corpus, binary=False):
-        if stem:
-            if use_sw:
-                vectorizer = model(tokenizer=tokenizer.stem_nltk_tokenizer,
-                                   stop_words=nltk_sw.words('english'),
-                                   min_df=min_df,
-                                   max_df=max_df,
-                                   max_features=max_features,
-                                   binary=binary)
+        if self.settings.useStem:
+            if self.settings.useSW:
+                if self.settings.useGramms:
+                    vectorizer = model(n_features=self.settings.maxDictSize,
+                                       tokenizer=self.__tokenizer.stemTokenize,
+                                       stop_words=self.settings.sw,
+                                       ngram_range=(1, self.settings.grammsSize),
+                                       min_df=self.settings.minWordFq,
+                                       max_df=self.settings.maxWordFq,
+                                       binary=binary)
+                else:
+                    vectorizer = model(n_features=self.settings.maxDictSize,
+                                       tokenizer=self.__tokenizer.stemTokenize,
+                                       stop_words=self.settings.sw,
+                                       min_df=self.settings.minWordFq,
+                                       max_df=self.settings.maxWordFq,
+                                       binary=binary)
             else:
-                vectorizer = model(tokenizer=tokenizer.stem_nltk_tokenizer,
-                                   min_df=min_df,
-                                   max_df=max_df,
-                                   max_features=max_features,
-                                   binary=binary)
-        elif lem:
-            if use_sw:
-                vectorizer = model(tokenizer=tokenizer.lem_nltk_tokenizer,
-                                   stop_words=nltk_sw.words('english'),
-                                   min_df=min_df,
-                                   max_df=max_df,
-                                   max_features=max_features,
-                                   binary=binary)
+                if self.settings.useGramms:
+                    vectorizer = model(n_features=self.settings.maxDictSize,
+                                       tokenizer=self.__tokenizer.stemTokenize,
+                                       ngram_range=(1, self.settings.grammsSize),
+                                       min_df=self.settings.minWordFq,
+                                       max_df=self.settings.maxWordFq,
+                                       binary=binary)
+                else:
+                    vectorizer = model(n_features=self.settings.maxDictSize,
+                                       tokenizer=self.__tokenizer.stemTokenize,
+                                       min_df=self.settings.minWordFq,
+                                       max_df=self.settings.maxWordFq,
+                                       binary=binary)
+        elif self.settings.useLem:
+            if self.settings.useSW:
+                if self.settings.useGramms:
+                    vectorizer = model(n_features=self.settings.maxDictSize,
+                                       tokenizer=self.__tokenizer.lemTokenize,
+                                       stop_words=self.settings.sw,
+                                       ngram_range=(1, self.settings.grammsSize),
+                                       min_df=self.settings.minWordFq,
+                                       max_df=self.settings.maxWordFq,
+                                       binary=binary)
+                else:
+                    vectorizer = model(n_features=self.settings.maxDictSize,
+                                       tokenizer=self.__tokenizer.lemTokenize,
+                                       stop_words=self.settings.sw,
+                                       min_df=self.settings.minWordFq,
+                                       max_df=self.settings.maxWordFq,
+                                       binary=binary)
             else:
-                vectorizer = model(tokenizer=tokenizer.lem_nltk_tokenizer,
-                                   min_df=min_df,
-                                   max_df=max_df,
-                                   max_features=max_features,
-                                   binary=binary)
-        elif use_nltk:
-            if use_sw:
-                vectorizer = model(tokenizer=tokenizer.nltk_tokenizer,
-                                   stop_words=nltk_sw.words('english'),
-                                   min_df=min_df,
-                                   max_df=max_df,
-                                   max_features=max_features,
-                                   binary=binary)
-            else:
-                vectorizer = model(tokenizer=tokenizer.nltk_tokenizer,
-                                   min_df=min_df,
-                                   max_df=max_df,
-                                   max_features=max_features,
-                                   binary=binary)
+                if self.settings.useGramms:
+                    vectorizer = model(n_features=self.settings.maxDictSize,
+                                       tokenizer=self.__tokenizer.lemTokenize,
+                                       ngram_range=(1, self.settings.grammsSize),
+                                       min_df=self.settings.minWordFq,
+                                       max_df=self.settings.maxWordFq,
+                                       binary=binary)
+                else:
+                    vectorizer = model(n_features=self.settings.maxDictSize,
+                                       tokenizer=self.__tokenizer.lemTokenize,
+                                       min_df=self.settings.minWordFq,
+                                       max_df=self.settings.maxWordFq,
+                                       binary=binary)
         else:
-            if use_sw:
-                vectorizer = model(stop_words="english",
-                                   min_df=min_df,
-                                   max_df=max_df,
-                                   max_features=max_features,
-                                   binary=binary)
+            if self.settings.useSW:
+                if self.settings.useGramms:
+                    vectorizer = model(n_features=self.settings.maxDictSize,
+                                       tokenizer=self.__tokenizer.lemTokenize,
+                                       stop_words=self.settings.sw,
+                                       ngram_range=(1, self.settings.grammsSize),
+                                       min_df=self.settings.minWordFq,
+                                       max_df=self.settings.maxWordFq,
+                                       binary=binary)
+                else:
+                    vectorizer = model(n_features=self.settings.maxDictSize,
+                                       tokenizer=self.__tokenizer.lemTokenize,
+                                       stop_words=self.settings.sw,
+                                       min_df=self.settings.minWordFq,
+                                       max_df=self.settings.maxWordFq,
+                                       binary=binary)
             else:
-                vectorizer = model(min_df=min_df,
-                                   max_df=max_df,
-                                   max_features=max_features,
-                                   binary=binary)
+                if self.settings.useGramms:
+                    vectorizer = model(n_features=self.settings.maxDictSize,
+                                       tokenizer=self.__tokenizer.lemTokenize,
+                                       ngram_range=(1, self.settings.grammsSize),
+                                       min_df=self.settings.minWordFq,
+                                       max_df=self.settings.maxWordFq,
+                                       binary=binary)
+                else:
+                    vectorizer = model(n_features=self.settings.maxDictSize,
+                                       tokenizer=self.__tokenizer.lemTokenize,
+                                       min_df=self.settings.minWordFq,
+                                       max_df=self.settings.maxWordFq,
+                                       binary=binary)
+
         return vectorizer.fit_transform(corpus)
 
     def tf(self, corpus):
