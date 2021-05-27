@@ -5,7 +5,6 @@ from sklearn.feature_extraction.text import HashingVectorizer
 from nltk.corpus import stopwords as nltk_sw
 
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
-from gensim.utils import simple_preprocess
 
 from model.RULangTokenize import RULangTokenize
 from model.ENGLangTokenize import ENGLangTokenize
@@ -20,9 +19,7 @@ class LangVectorize:
         self.settings = settings
         self.__tokenizer = RULangTokenize(self.settings) if self.lang == Lang.RUS else ENGLangTokenize(self.settings)
 
-    def vect(self, model, corpus, stem, lem, use_sw, use_nltk,  min_cnt=0, max_features=None, max_df=1.0, binary=False):
-        min_df = min_cnt
-        tokenizer = Tokenizer()
+    def vect(self, model, corpus, binary=False):
         if stem:
             if use_sw:
                 vectorizer = model(tokenizer=tokenizer.stem_nltk_tokenizer,
@@ -79,48 +76,74 @@ class LangVectorize:
                                    binary=binary)
         return vectorizer.fit_transform(corpus)
 
-    def tf(self, corpus, stem, lem, use_sw, use_nltk,  min_cnt=0, max_features=None, max_df=1.0):
-        return self.vect(CountVectorizer, corpus, stem, lem, use_sw, use_nltk, min_cnt, max_features, max_df)
+    def tf(self, corpus):
+        return self.vect(CountVectorizer, corpus)
 
-    def oh(self, corpus, stem, lem, use_sw, use_nltk,  min_cnt=0, max_features=None, max_df=1.0):
-        return self.vect(CountVectorizer, corpus, stem, lem, use_sw, use_nltk,  min_cnt, max_features, max_df, True)
+    def oh(self, corpus):
+        return self.vect(CountVectorizer, corpus, True)
 
-    def tfidf(self, corpus, stem, lem, use_sw, use_nltk,  min_cnt=0, max_features=None, max_df=1.0):
-        return self.vect(TfidfVectorizer, corpus, stem, lem, use_sw, use_nltk, min_cnt, max_features, max_df)
+    def tfidf(self, corpus):
+        return self.vect(TfidfVectorizer, corpus)
 
-    def hash(self, corpus, stem, lem, use_sw, use_nltk, max_features):
-        if max_features is None:
-            max_features = 2**20
-        if stem:
-            if use_sw:
-                vectorizer = HashingVectorizer(tokenizer=tokenizer.stem_nltk_tokenizer,
-                                               stop_words=nltk_sw.words('english'),
-                                               n_features=max_features)
+    def hash(self, corpus):
+        if self.settings.useStem:
+            if self.settings.useSW:
+                if self.settings.useGramms:
+                    vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
+                                                   tokenizer=self.__tokenizer.stemTokenize,
+                                                   stop_words=self.settings.sw,
+                                                   ngram_range=(1, self.settings.grammsSize))
+                else:
+                    vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
+                                                   tokenizer=self.__tokenizer.stemTokenize,
+                                                   stop_words=self.settings.sw)
             else:
-                vectorizer = HashingVectorizer(tokenizer=tokenizer.stem_nltk_tokenizer,
-                                               n_features=max_features)
-        elif lem:
-            if use_sw:
-                vectorizer = HashingVectorizer(tokenizer=tokenizer.lem_nltk_tokenizer,
-                                               stop_words=nltk_sw.words('english'),
-                                               n_features=max_features)
+                if self.settings.useGramms:
+                    vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
+                                                   tokenizer=self.__tokenizer.stemTokenize,
+                                                   ngram_range=(1, self.settings.grammsSize))
+                else:
+                    vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
+                                                   tokenizer=self.__tokenizer.stemTokenize)
+        elif self.settings.useLem:
+            if self.settings.useSW:
+                if self.settings.useGramms:
+                    vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
+                                                   tokenizer=self.__tokenizer.lemTokenize,
+                                                   stop_words=self.settings.sw,
+                                                   ngram_range=(1, self.settings.grammsSize))
+                else:
+                    vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
+                                                   tokenizer=self.__tokenizer.lemTokenize,
+                                                   stop_words=self.settings.sw)
             else:
-                vectorizer = HashingVectorizer(tokenizer=tokenizer.lem_nltk_tokenizer,
-                                               n_features=max_features)
-        elif use_nltk:
-            if use_sw:
-                vectorizer = HashingVectorizer(tokenizer=tokenizer.nltk_tokenizer,
-                                               stop_words=nltk_sw.words('english'),
-                                               n_features=max_features)
-            else:
-                vectorizer = HashingVectorizer(tokenizer=tokenizer.nltk_tokenizer,
-                                               n_features=max_features)
+                if self.settings.useGramms:
+                    vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
+                                                   tokenizer=self.__tokenizer.lemTokenize,
+                                                   ngram_range=(1, self.settings.grammsSize))
+                else:
+                    vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
+                                                   tokenizer=self.__tokenizer.lemTokenize)
         else:
-            if use_sw:
-                vectorizer = HashingVectorizer(stop_words="english",
-                                               n_features=max_features)
+            if self.settings.useSW:
+                if self.settings.useGramms:
+                    vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
+                                                   tokenizer=self.__tokenizer.lemTokenize,
+                                                   stop_words=self.settings.sw,
+                                                   ngram_range=(1, self.settings.grammsSize))
+                else:
+                    vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
+                                                   tokenizer=self.__tokenizer.lemTokenize,
+                                                   stop_words=self.settings.sw)
             else:
-                vectorizer = HashingVectorizer(n_features=max_features)
+                if self.settings.useGramms:
+                    vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
+                                                   tokenizer=self.__tokenizer.lemTokenize,
+                                                   ngram_range=(1, self.settings.grammsSize))
+                else:
+                    vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
+                                                   tokenizer=self.__tokenizer.lemTokenize)
+
         return vectorizer.fit_transform(corpus)
 
     def distribution(self, corpus):
@@ -136,22 +159,10 @@ class LangVectorize:
             for idx, words in enumerate(docs)
         ]
 
-        if self.settings.maxDictSize is not None:
-            if self.settings.maxIters is not None:
-                model = Doc2Vec(tagged_docs,
-                                vector_size=self.settings.maxDictSize,
-                                min_count=self.settings.minWordCnt,
-                                epochs=self.settings.maxIters,
-                                workers=4)
-            else:
-                model = Doc2Vec(tagged_docs,
-                                vector_size=self.settings.maxDictSize,
-                                min_count=self.settings.minWordCnt,
-                                workers=4)
-        else:
-            if self.settings.maxIters is not None:
-                model = Doc2Vec(tagged_docs, min_count=self.settings.minWordCnt, epochs=self.settings.maxIters, workers=4)
-            else:
-                model = Doc2Vec(tagged_docs, min_count=self.settings.minWordCnt, workers=4)
+        model = Doc2Vec(tagged_docs,
+                        vector_size=self.settings.maxDictSize,
+                        min_count=self.settings.minWordCnt,
+                        epochs=self.settings.maxIters,
+                        workers=4)
 
         return [it for it in model.docvecs]

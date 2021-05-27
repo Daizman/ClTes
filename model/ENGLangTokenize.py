@@ -13,9 +13,9 @@ class ENGLangTokenize:
         self.minWordSize = settings.minWordSize
         self.pos = settings.pos
         self.__posStr = 'v' if self.pos == PartOfSpeech.VERB else 'n' if self.pos == PartOfSpeech.NOUN else 'a'
-        self.stopwords = settings.stopwords
+        self.stopwords = settings.sw if settings.useSW else []
         self.useGramms = settings.useGramms
-        self.grammsSize = settings.grammsSizese
+        self.grammsSize = settings.grammsSize
         self.__lemmatizer = None
         self.__stemmer = None
 
@@ -28,8 +28,8 @@ class ENGLangTokenize:
         self.__lemmatizer = WordNetLemmatizer()
         return [self.lemTokenize(text) for text in texts]
 
-    def simpleTokenize(self, text):
-        tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)
+    def simpleTokenize(self, txt):
+        tokens = [word for sent in nltk.sent_tokenize(txt) for word in nltk.word_tokenize(sent)
                   if len(word) >= self.minWordSize and word not in self.stopwords]
         if not self.useGramms:
             return [token for token in tokens if re.search(self.tokenRe, token)]

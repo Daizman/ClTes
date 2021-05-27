@@ -10,9 +10,9 @@ class RULangTokenize:
         self.minWordSize = settings.minWordSize
         self.pos = settings.pos
         self.__posStr = 'VERB' if self.pos == PartOfSpeech.VERB else 'NOUN' if self.pos == PartOfSpeech.NOUN else 'ADJ'
-        self.stopwords = settings.stopwords
+        self.stopwords = settings.sw if settings.useSW else []
         self.useGramms = settings.useGramms
-        self.grammsSize = settings.grammsSizese
+        self.grammsSize = settings.grammsSize
         self.__stemmer = None
         self.__morph = None
 
