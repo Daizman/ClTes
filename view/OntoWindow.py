@@ -19,6 +19,7 @@ class Ui_MainWindow(object):
         self.TWDefHide.setObjectName("TWDefHide")
         self.TWDefHide.setColumnCount(2)
         self.TWDefHide.setRowCount(0)
+        self.TWDefHide.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
         item = QtWidgets.QTableWidgetItem()
         self.TWDefHide.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
@@ -329,8 +330,11 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.initDefDict()
+
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.initTable()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -372,6 +376,80 @@ class Ui_MainWindow(object):
         self.LbGrammUses.setText(_translate("MainWindow", "uses"))
         self.LbClearIs.setText(_translate("MainWindow", "isA"))
         self.LbClearUses.setText(_translate("MainWindow", "uses"))
+
+    def initButtons(self):
+        pass
+
+    def initDefDict(self):
+        self.defDict = {
+            self.BNormalize: [self.LNormalizeIs,
+                              self.LNormalizeAll,
+                              self.LNormalizeUseFor,
+                              self.LNormalizeIs2,
+                              self.LStemUses,
+                              self.LLemUses,
+                              self.LFilterUses,
+                              self.LbNormalizeIs,
+                              self.LbNormalizeUseFor,
+                              self.LbStemUses,
+                              self.LbLemUses,
+                              self.LbFilterUses],
+            self.BVectorize: [self.LVectorizeIs, self.LbVectorizeIs],
+            self.BPrepMeth: [self.LPrepMehUseForVert, self.LPrepMethUseForHor, self.LbPrepMethUseFor],
+            self.BReduceDim: [self.LReduceIsVert, self.LReduceUsesHor, self.LbReduceIs],
+            self.BPrep: [self.LClustNext, self.LbPrepNext],
+            self.BClust: [],
+            self.BStem: [self.LStemClear],
+            self.BLem: [self.LLemClear],
+            self.BClearData: [],
+            self.BFilter: [],
+            self.BToken: [self.LTokenUses, self.LbTokenUses],
+            self.BGramm: [self.LGrammUses, self.LbGrammUses],
+            self.BStopWord: [self.LStopWordsUses, self.LbStopWordsUses]
+        }
+
+    def initTable(self):
+        self.defs = {'Нормализация текстов': self.BNormalize,
+                     'Векторизация текстов': self.BVectorize,
+                     'Метод предобработки текста перед кластеризацией': self.BPrepMeth,
+                     'Снижение размерности': self.BReduceDim,
+                     'Предобработка текстов': self.BPrep,
+                     'Кластеризация текстов': self.BClust,
+                     'Фильтрация токенов': self.BFilter,
+                     'Лемматизация': self.BLem,
+                     'Стемминг': self.BStem,
+                     'Токен': self.BToken,
+                     'n-грамма': self.BGramm,
+                     'Стоп-слово': self.BStopWord,
+                     'Очистка данных': self.BClearData}
+
+        self.TWDefHide.setRowCount(len(self.defs))
+
+        for i, defin in enumerate(self.defs):
+            self.TWDefHide.setItem(i, 0, QtWidgets.QTableWidgetItem(defin))
+
+            item = QtWidgets.QTableWidgetItem()
+            item.setFlags(QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+            item.setCheckState(QtCore.Qt.Unchecked)
+
+            self.TWDefHide.setItem(i, 1, item)
+
+        self.TWDefHide.cellChanged.connect(self.onCellChanged)
+        self.TWDefHide.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+
+    def onCellChanged(self, row, column):
+        item = self.TWDefHide.item(row, 0)
+        itemState = self.TWDefHide.item(row, 1)
+        for hideItems in self.defDict[self.defs[item.text()]]:
+            if itemState.checkState() == QtCore.Qt.Checked:
+                hideItems.hide()
+            else:
+                hideItems.show()
+
+        if itemState.checkState() == QtCore.Qt.Checked:
+            self.defs[item.text()].hide()
+        else:
+            self.defs[item.text()].show()
 
 
 if __name__ == "__main__":
