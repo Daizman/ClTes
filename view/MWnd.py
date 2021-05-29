@@ -7,6 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from model.Enums.Lang import Lang
 
 class Ui_MWnd(object):
     def setupUi(self, MWnd):
@@ -134,12 +135,14 @@ class Ui_MWnd(object):
         self.statusbar.setObjectName("statusbar")
         MWnd.setStatusBar(self.statusbar)
 
+        self.initCombos()
+
         self.retranslateUi(MWnd)
         QtCore.QMetaObject.connectSlotsByName(MWnd)
 
     def retranslateUi(self, MWnd):
         _translate = QtCore.QCoreApplication.translate
-        MWnd.setWindowTitle(_translate("MWnd", "MainWindow"))
+        MWnd.setWindowTitle(_translate("MWnd", "Кластеризация"))
         self.GBInputData.setTitle(_translate("MWnd", "Входные данные"))
         self.LLang.setText(_translate("MWnd", "Язык:"))
         self.LCorp.setText(_translate("MWnd", "Корпус:"))
@@ -148,15 +151,40 @@ class Ui_MWnd(object):
         self.BViewOnto.setText(_translate("MWnd", "Просмотр онтологии"))
         self.GBMetr.setTitle(_translate("MWnd", "Метрики"))
         self.LHomogen.setText(_translate("MWnd", "Однородность:"))
-        self.LHomogenVal.setText(_translate("MWnd", "TextLabel"))
+        self.LHomogenVal.setText(_translate("MWnd", ""))
         self.LCompleteness.setText(_translate("MWnd", "Полнота:"))
-        self.LCompletenessVal.setText(_translate("MWnd", "TextLabel"))
+        self.LCompletenessVal.setText(_translate("MWnd", ""))
         self.LVMeas.setText(_translate("MWnd", "V-мера:"))
-        self.LVMeasVal.setText(_translate("MWnd", "TextLabel"))
+        self.LVMeasVal.setText(_translate("MWnd", ""))
         self.LWTime.setText(_translate("MWnd", "Время кластеризации:"))
-        self.LWTimeVal.setText(_translate("MWnd", "TextLabel"))
+        self.LWTimeVal.setText(_translate("MWnd", ""))
         self.BGetPlots.setText(_translate("MWnd", "Получить графики"))
         self.BClust.setText(_translate("MWnd", "Кластеризация"))
+
+    def initCombos(self):
+        self.CBLangVal.addItem('Русский', userData=Lang.RUS)
+        self.CBLangVal.addItem('Английский', userData=Lang.ENG)
+
+        self.CBLangVal.currentTextChanged.connect(self.changeCombos)
+
+        self.CBCorpVal.addItem('OpenCorpora')
+        self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA')
+        self.CBCorpVal.addItem('Выбрать на компьютере')
+
+    def changeCombos(self):
+        self.CBCorpVal.clear()
+
+        if self.CBLangVal.currentData() == Lang.RUS:
+            self.CBCorpVal.addItem('OpenCorpora')
+            self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA')
+            self.CBCorpVal.addItem('Выбрать на компьютере')
+        else:
+            self.CBCorpVal.addItem('The 20 Newsgroups data set')
+            self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA')
+            self.CBCorpVal.addItem('Выбрать на компьютере')
+
+    def initButtons(self):
+        pass
 
 
 if __name__ == "__main__":
