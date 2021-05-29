@@ -8,6 +8,8 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from model.Enums.Lang import Lang
+from model.Settings import Settings
+from controller.MainWindowController import MainWindowController
 
 class Ui_MWnd(object):
     def setupUi(self, MWnd):
@@ -115,6 +117,7 @@ class Ui_MWnd(object):
         sizePolicy.setHeightForWidth(self.BGetPlots.sizePolicy().hasHeightForWidth())
         self.BGetPlots.setSizePolicy(sizePolicy)
         self.BGetPlots.setObjectName("BGetPlots")
+        self.BGetPlots.setEnabled(False)
         self.GLRCol.addWidget(self.BGetPlots, 1, 0, 1, 1)
         self.BClust = QtWidgets.QPushButton(self.WMain)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
@@ -135,7 +138,10 @@ class Ui_MWnd(object):
         self.statusbar.setObjectName("statusbar")
         MWnd.setStatusBar(self.statusbar)
 
+        self.controller = MainWindowController(self, MWnd, Settings())
+
         self.initCombos()
+        self.initButtons()
 
         self.retranslateUi(MWnd)
         QtCore.QMetaObject.connectSlotsByName(MWnd)
@@ -165,14 +171,17 @@ class Ui_MWnd(object):
         self.CBLangVal.addItem('Русский', userData=Lang.RUS)
         self.CBLangVal.addItem('Английский', userData=Lang.ENG)
 
-        self.CBLangVal.currentTextChanged.connect(self.changeCombos)
+        self.CBLangVal.currentTextChanged.connect(self.changeLangCombo)
 
         self.CBCorpVal.addItem('OpenCorpora')
         self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA')
         self.CBCorpVal.addItem('Выбрать на компьютере')
 
-    def changeCombos(self):
+        self.CBCorpVal.currentTextChanged.connect(self.chandeCorpCombo)
+
+    def changeLangCombo(self):
         self.CBCorpVal.clear()
+        self.controller.settings.lang = self.CBLangVal.currentData()
 
         if self.CBLangVal.currentData() == Lang.RUS:
             self.CBCorpVal.addItem('OpenCorpora')
@@ -183,8 +192,15 @@ class Ui_MWnd(object):
             self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA')
             self.CBCorpVal.addItem('Выбрать на компьютере')
 
+    def chandeCorpCombo(self):
+        self.controller.corp_name = self.CBCorpVal.currentText()
+
     def initButtons(self):
-        pass
+        self.BClust.clicked.connect(self.controller.clust)
+        self.BOpenSet.clicked.connect(self.controller.openSettings)
+        self.BEditSet.clicked.connect(self.controller.changeSettings)
+        self.BViewOnto.clicked.connect(self.controller.viewSettings)
+        self.BGetPlots.clicked.connect(self.controller.createPlots)
 
 
 if __name__ == "__main__":

@@ -7,9 +7,10 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from model.Enums.ViewType import ViewType
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
+    def setupUi(self, MainWindow, settings, openType):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1079, 600)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -450,6 +451,9 @@ class Ui_MainWindow(object):
             self.defs[item.text()].hide()
         else:
             self.defs[item.text()].show()
+
+    def initWndView(self):
+        pass
 
 
 if __name__ == "__main__":
