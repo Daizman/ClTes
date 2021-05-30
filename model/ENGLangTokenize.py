@@ -3,8 +3,8 @@ import nltk
 from nltk.stem.snowball import SnowballStemmer
 from nltk.stem.wordnet import WordNetLemmatizer
 
-from model.Enums.PartOfSpeech import PartOfSpeech
-from model.Enums.TokenizerType import TokenizerType
+from model.enums.PartOfSpeech import PartOfSpeech
+from model.enums.TokenizerType import TokenizerType
 
 
 class ENGLangTokenize:

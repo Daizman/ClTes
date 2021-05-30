@@ -2,7 +2,7 @@ import json
 from model.Settings import Settings
 from PyQt5 import QtWidgets
 from view.OntoWindow import Ui_MainWindow
-from model.Enums.ViewType import ViewType
+from model.enums.ViewType import ViewType
 
 
 class MainWindowController:
@@ -25,7 +25,7 @@ class MainWindowController:
 
         with open(f_name) as f_set:
             f_text = '\n'.join(f_set.readlines()[:2])
-            setts = json.loads(f_text)
+            setts = json.loads(f_text, object_hook=as_enum)
             self.settings = Settings(setts['minWordSize'],
                                      setts['maxDictSize'],
                                      setts['minWordCnt'],

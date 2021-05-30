@@ -1,7 +1,7 @@
 import pymorphy2
 from nltk import SnowballStemmer
-from model.Enums.PartOfSpeech import PartOfSpeech
-from model.Enums.TokenizerType import TokenizerType
+from model.enums.PartOfSpeech import PartOfSpeech
+from model.enums.TokenizerType import TokenizerType
 
 
 class RULangTokenize:

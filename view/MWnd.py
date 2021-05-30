@@ -7,7 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from model.Enums.Lang import Lang
+from model.enums.Lang import Lang
 from model.Settings import Settings
 from controller.MainWindowController import MainWindowController
 

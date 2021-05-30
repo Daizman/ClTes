@@ -1,5 +1,5 @@
-from model.Enums.PartOfSpeech import PartOfSpeech
-from model.Enums.Lang import Lang
+from model.enums.PartOfSpeech import PartOfSpeech
+from model.enums.Lang import Lang
 from nltk.corpus import stopwords as nltk_sw
 
 

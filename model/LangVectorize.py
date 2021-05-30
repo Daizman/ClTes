@@ -9,8 +9,8 @@ from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from model.RULangTokenize import RULangTokenize
 from model.ENGLangTokenize import ENGLangTokenize
 
-from model.Enums.Lang import Lang
-from model.Enums.TokenizerType import TokenizerType
+from model.enums.Lang import Lang
+from model.enums.TokenizerType import TokenizerType
 
 
 class LangVectorize:

@@ -7,7 +7,9 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from model.Enums.ViewType import ViewType
+from model.enums.ViewType import ViewType
+from model.Settings import Settings
+from model.mixins.JsonEnumExtention import *
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow, settings=None, openType=ViewType.VIEW):
@@ -331,11 +333,14 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.mainWindow = MainWindow
         self.settings = settings
+        self.localSettings = settings
         self.openType = openType
 
         self.initDefDict()
         self.initWndView()
+        self.initButtons()
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -383,7 +388,11 @@ class Ui_MainWindow(object):
         self.LbClearUses.setText(_translate("MainWindow", "uses"))
 
     def initButtons(self):
-        pass
+        # кнопки управления
+        self.BSaveInFile.clicked.connect(self.saveSettsInFile)
+        self.BLocalSave.clicked.connect(self.saveSettsLocal)
+        self.BLoadFromFile.clicked.connect(self.openSettings)
+        self.BExit.clicked.connect(self.cancelWnd)
 
     def initDefDict(self):
         self.defDict = {
@@ -534,6 +543,67 @@ class Ui_MainWindow(object):
             self.LClearDataIsVert.hide()
         else:
             self.LClearDataIsVert.show()
+
+    def saveSettsInFile(self):
+        options = QtWidgets.QFileDialog.Options()
+        options |= QtWidgets.QFileDialog.DontUseNativeDialog
+        f_name, _ = QtWidgets.QFileDialog.getSaveFileName(self.mainWindow,
+                                                          "Сохранение",
+                                                          "../settingsTemplates",
+                                                          "Файлы настроек (*.json)",
+                                                          options=options)
+        if not f_name:
+            return
+
+        f_name = f_name if f_name.endswith('.json') else f_name + '.json'
+
+        with open(f_name, "w") as dump:
+            self.settings = self.localSettings
+            temperPos = self.settings.pos
+            temperLang = self.settings.lang
+            dumpStr = json.dumps(self.settings.__dict__, cls=EnumEncoder)
+            dump.write(dumpStr)
+
+    def saveSettsLocal(self):
+        self.settings = self.localSettings
+
+    def cancelWnd(self):
+        self.localSettings = self.settings
+
+    def openSettings(self):
+        options = QtWidgets.QFileDialog.Options()
+        options |= QtWidgets.QFileDialog.DontUseNativeDialog
+        f_name, _ = QtWidgets.QFileDialog.getOpenFileName(self.mainWindow,
+                                                          "Выбор файла настроек",
+                                                          "",
+                                                          "Файлы настроек (*.json)",
+                                                          options=options)
+        if not f_name:
+            return
+
+        with open(f_name) as f_set:
+            f_text = '\n'.join(f_set.readlines()[:2])
+            setts = json.loads(f_text, object_hook=as_enum)
+            self.settings = Settings(setts['minWordSize'],
+                                     setts['maxDictSize'],
+                                     setts['minWordCnt'],
+                                     setts['maxWordFq'],
+                                     setts['minWordFq'],
+                                     setts['useStem'],
+                                     setts['useLem'],
+                                     setts['pos'],
+                                     setts['useSW'],
+                                     setts['sw'],
+                                     setts['useGramms'],
+                                     setts['grammsSize'],
+                                     setts['clustCnt'],
+                                     setts['maxIters'],
+                                     setts['similPers'],
+                                     setts['minClustSize'],
+                                     setts['lang'],
+                                     setts['tokenRe'])
+
+            self.localSettings = self.settings
 
 
 if __name__ == "__main__":
