@@ -202,6 +202,32 @@ class Ui_DefWindow(object):
         self.CBVal.hide()
         self.BAccept.hide()
 
+    def saveParam(self):
+        if self.defin == Defins.NORMALIZATION:
+            return
+        if self.defin == Defins.VECTORIZATION:
+            return
+        if self.defin == Defins.PREPMETH:
+            return
+        if self.defin == Defins.REDUCEDIM:
+            return
+        if self.defin == Defins.PREP:
+            return
+        if self.defin == Defins.CLUST:
+            return
+        if self.defin == Defins.FILTER:
+            return
+        if self.defin == Defins.LEM:
+            return
+        if self.defin == Defins.STEM:
+            return
+        if self.defin == Defins.TOKEN:
+            return
+        if self.defin == Defins.SW:
+            return
+        if self.defin == Defins.NGRAMM:
+            return
+
 
 if __name__ == "__main__":
     import sys
