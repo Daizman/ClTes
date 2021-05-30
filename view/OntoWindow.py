@@ -7,9 +7,9 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from model.enums.ViewType import ViewType
 from model.Settings import Settings
 from model.mixins.JsonEnumExtention import *
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow, settings=None, openType=ViewType.VIEW):
@@ -575,7 +575,7 @@ class Ui_MainWindow(object):
         options |= QtWidgets.QFileDialog.DontUseNativeDialog
         f_name, _ = QtWidgets.QFileDialog.getOpenFileName(self.mainWindow,
                                                           "Выбор файла настроек",
-                                                          "",
+                                                          "../settingsTemplates",
                                                           "Файлы настроек (*.json)",
                                                           options=options)
         if not f_name:
