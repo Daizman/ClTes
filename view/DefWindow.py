@@ -69,6 +69,9 @@ definRefs = {
 }
 
 notEditableDefs = [Defins.NORMALIZATION, Defins.FILTER, Defins.PREP, Defins.REDUCEDIM, Defins.PREPMETH]
+usableDefs = [Defins.LEM, Defins.STEM, Defins.SW, Defins.TOKEN, Defins.NGRAMM]
+selectableDefs = [Defins.CLUST, Defins.VECTORIZATION]
+inputDefs = []
 
 
 class Ui_DefWindow(object):
@@ -173,6 +176,15 @@ class Ui_DefWindow(object):
         if self.defin in notEditableDefs:
             self.setupNotEditableFields()
         self.setupButtons()
+        if self.defin in selectableDefs:
+            self.setupCBVal()
+        if self.defin in inputDefs:
+            self.setupTEVal()
+        if self.defin not in usableDefs:
+            self.CBUse.hide()
+
+        if self.viewType == ViewType.VIEW:
+            self.setupView()
 
     def setupRefs(self):
         self.TWRefs.clear()
@@ -200,6 +212,18 @@ class Ui_DefWindow(object):
         self.LVal.hide()
         self.LEVal.hide()
         self.CBVal.hide()
+        self.BAccept.hide()
+
+    def setupCBVal(self):
+        pass
+
+    def setupTEVal(self):
+        pass
+
+    def setupView(self):
+        self.CBUse.setEnabled(False)
+        self.CBVal.setEnabled(False)
+        self.LEVal.setReadOnly(True)
         self.BAccept.hide()
 
     def saveParam(self):
