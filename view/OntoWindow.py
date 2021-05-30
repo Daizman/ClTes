@@ -9,6 +9,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from model.Settings import Settings
 from model.mixins.JsonEnumExtention import *
+from view import DefWindow
+from model.enums.Defins import Defins
 
 
 class Ui_MainWindow(object):
@@ -394,6 +396,9 @@ class Ui_MainWindow(object):
         self.BLoadFromFile.clicked.connect(self.openSettings)
         self.BExit.clicked.connect(self.cancelWnd)
 
+        # определения
+        self.BNormalize.clicked.connect(self.openNormalizeDef)
+
     def initDefDict(self):
         self.defDict = {
             self.BNormalize: [self.LNormalizeIs,
@@ -559,8 +564,6 @@ class Ui_MainWindow(object):
 
         with open(f_name, "w") as dump:
             self.settings = self.localSettings
-            temperPos = self.settings.pos
-            temperLang = self.settings.lang
             dumpStr = json.dumps(self.settings.__dict__, cls=EnumEncoder)
             dump.write(dumpStr)
 
@@ -604,6 +607,13 @@ class Ui_MainWindow(object):
                                      setts['tokenRe'])
 
             self.localSettings = self.settings
+
+    def openNormalizeDef(self):
+        self.normalizeDef = QtWidgets.QMainWindow()
+        self.normalizeDef.prevWindow = self
+        self.normalizeUI = DefWindow.Ui_DefWindow()
+        self.normalizeUI.setupUi(self.normalizeDef, self.localSettings, self.openType, Defins.NORMALIZATION)
+        self.normalizeDef.show()
 
 
 if __name__ == "__main__":

@@ -7,9 +7,72 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from model.enums.ViewType import ViewType
+from model.enums.Defins import Defins
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow, settings=None):
+
+definDict = {
+    Defins.NORMALIZATION: '«Нормализация текста» - уменьшение размерности текста '
+                          'при помощи уменьшения его разреженности.',
+    Defins.VECTORIZATION: '«Векторизация текста» - представление текста в виде вектора критериев'
+                          ' для использования в алгоритмах кластеризации.',
+    Defins.PREPMETH: '«Метод предобработки текста перед кластеризацией» – набор действий над текстом, его обработки,'
+                     ' чтобы его можно было применить в одном из алгоритмов кластеризации.'
+                     'К этим методам относится нормализация и векторизация текстов.',
+    Defins.REDUCEDIM: '«Снижение размерности» - уменьшение количества различных токенов.\n'
+                      '«Размерность текста» - количество токенов в тексте.\n'
+                      '«Разреженность текста» - разреженность матрицы токенов данного текста. '
+                      'Возникает в некоторых моделях из-за того, что матрица строится по всем токенам корпуса.',
+    Defins.PREP: '«Предобработка текстов» - векторизация текстов и снижение размерности этих векторов с помощью '
+                 'методов предобработки',
+    Defins.CLUST: '«Задача кластеризации корпуса текстов» - это разбиение корпуса текстов на кластеры.\n'
+                  '«Кластеры текстов» - подмножества тематически близких документов из исходного корпуса текстов.',
+    Defins.FILTER: '«Фильтрация токенов» - использование следующих методов: удаление токенов по частоте,'
+                   ' удаление стоп-слов, выбор наиболее частых слов, исключение пунктуации',
+    Defins.LEM: '«Лемматизация» - использование словаря для просмотра каждого токена, и возвращения начальной формы '
+                'слова, называемой леммой, в словарь.',
+    Defins.STEM: '«Стемминг» - использование набора правил (или моделей) для разбиения строки на меньшие подстроки,'
+                ' с целью удаления приставок и суффиксов слов, которые изменяют значение.',
+    Defins.TOKEN: '«Токен» - самостоятельная единица текста, в используемых моделях это обозначение используется для'
+                  ' слов, которые остались после нормализации.',
+    Defins.SW: '«Стоп-слово» - часто используемые слова предлоги, артикли и т.п., которые модель запрограммирована'
+               ' игнорировать.',
+    Defins.NGRAMM: '«N-грамма» - группа токенов.'
+}
+
+definRefs = {
+    Defins.NORMALIZATION: {
+        'Снижение размерности': 'useFor',
+        'Метод предобработки текста перед кластеризацией': 'isA',
+        'Фильтрация токенов': 'uses',
+        'Лемматизация': 'uses',
+        'Стемминг': 'uses'
+    },
+    Defins.VECTORIZATION: {'Метод предобработки текста перед кластеризацией': 'isA'},
+    Defins.PREPMETH: {'Предобработка текстов': 'useFor'},
+    Defins.REDUCEDIM: {
+        'Предобработка текстов': 'isA',
+        'Очистка данных': 'uses'
+    },
+    Defins.PREP: {'Кластеризация текстов': 'next'},
+    Defins.CLUST: {},
+    Defins.FILTER: {
+        'Очистка данных': 'isA',
+        'Токен': 'uses',
+        'Стоп-слово': 'uses'
+    },
+    Defins.LEM: {'Очистка данных': 'isA'},
+    Defins.STEM: {'Очистка данных': 'isA'},
+    Defins.TOKEN: {'N-грамма': 'uses'},
+    Defins.SW: {},
+    Defins.NGRAMM: {}
+}
+
+notEditableDefs = [Defins.NORMALIZATION, Defins.FILTER, Defins.PREP, Defins.REDUCEDIM, Defins.PREPMETH]
+
+
+class Ui_DefWindow(object):
+    def setupUi(self, MainWindow, settings=None, viewType=ViewType.VIEW, defin=Defins.NORMALIZATION):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(317, 624)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -24,6 +87,8 @@ class Ui_MainWindow(object):
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.LDef)
         self.TEDef = QtWidgets.QTextEdit(self.GBDefInfo)
         self.TEDef.setObjectName("TEDef")
+        self.TEDef.setText(definDict[defin])
+        self.TEDef.setReadOnly(True)
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.TEDef)
         self.LRefs = QtWidgets.QLabel(self.GBDefInfo)
         self.LRefs.setObjectName("LRefs")
@@ -77,7 +142,18 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.mainWindow = MainWindow
         self.settings = settings
+        self.viewType = viewType
+        self.defin = defin
+
+        _translate = QtCore.QCoreApplication.translate
+        item = self.TWRefs.horizontalHeaderItem(0)
+        item.setText(_translate("MainWindow", "Определение"))
+        item = self.TWRefs.horizontalHeaderItem(1)
+        item.setText(_translate("MainWindow", "Тип связи"))
+
+        self.setupAll()
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -88,21 +164,40 @@ class Ui_MainWindow(object):
         self.GBDefInfo.setTitle(_translate("MainWindow", "Информация о понятии"))
         self.LDef.setText(_translate("MainWindow", "Определение:"))
         self.LRefs.setText(_translate("MainWindow", "Связи:"))
-        item = self.TWRefs.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "Определение"))
-        item = self.TWRefs.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "Тип связи"))
         self.CBUse.setText(_translate("MainWindow", "Использовать"))
         self.LVal.setText(_translate("MainWindow", "Значение:"))
         self.BAccept.setText(_translate("MainWindow", "Принять изменения"))
         self.BClose.setText(_translate("MainWindow", "Закрыть"))
+
+    def setupAll(self):
+        self.setupRefs()
+        if self.defin in notEditableDefs:
+            self.setupNotEditableFields()
+        self.setupButtons()
+
+    def setupRefs(self):
+        self.TWRefs.clear()
+        self.TWRefs.setRowCount(len(definRefs[self.defin]))
+        for i, ref in enumerate(definRefs[self.defin]):
+            self.TWRefs.setItem(i, 0, QtWidgets.QTableWidgetItem(ref))
+            self.TWRefs.setItem(i, 1, QtWidgets.QTableWidgetItem(definRefs[self.defin][ref]))
+
+    def setupButtons(self):
+        self.BClose.clicked.connect(self.mainWindow.close)
+
+    def setupNotEditableFields(self):
+        self.CBUse.hide()
+        self.LVal.hide()
+        self.LEVal.hide()
+        self.CBVal.hide()
+        self.BAccept.hide()
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
+    ui = Ui_DefWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
