@@ -9,6 +9,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from model.enums.ViewType import ViewType
 from model.enums.Defins import Defins
+from model.enums.VectorizationType import VectorizationType
+from model.enums.ClusterizationType import ClusterizationType
 
 
 definDict = {
@@ -66,6 +68,22 @@ definRefs = {
     Defins.TOKEN: {'N-грамма': 'uses'},
     Defins.SW: {},
     Defins.NGRAMM: {}
+}
+
+vectVals = {
+    VectorizationType.TF: 'Частотное',
+    VectorizationType.TFIDF: 'TF-IDF',
+    VectorizationType.ONEHOT: 'Не зависимо от количества встречь',
+    VectorizationType.DISTR: 'Распределенная модель',
+    VectorizationType.HASH: 'TF-IDF с использованием хэширования'
+}
+
+clustVals = {
+    ClusterizationType.KMEANS: 'K-Means',
+    ClusterizationType.MINIBATCH_KMEANS: 'K-Means с использованием подгрупп',
+    ClusterizationType.BIRCH: 'Birch',
+    ClusterizationType.AGGLOMERATIVE: 'Agglomerative',
+    ClusterizationType.SPECTRAL: 'Spectral',
 }
 
 notEditableDefs = [Defins.NORMALIZATION, Defins.FILTER, Defins.PREP, Defins.REDUCEDIM, Defins.PREPMETH]
@@ -195,6 +213,7 @@ class Ui_DefWindow(object):
         self.TWRefs.setRowCount(len(definRefs[self.defin]))
         if self.TWRefs.rowCount() == 0:
             self.TWRefs.hide()
+            self.LRefs.hide()
             return
         for i, ref in enumerate(definRefs[self.defin]):
             item = QtWidgets.QTableWidgetItem(ref)
@@ -215,7 +234,12 @@ class Ui_DefWindow(object):
         self.BAccept.hide()
 
     def setupCBVal(self):
-        pass
+        if self.defin == Defins.VECTORIZATION:
+            for el in vectVals:
+                self.CBVal.addItem(vectVals[el], el)
+        if self.defin == Defins.CLUST:
+            for el in clustVals:
+                self.CBVal.addItem(clustVals[el], el)
 
     def setupTEVal(self):
         pass
