@@ -398,6 +398,18 @@ class Ui_MainWindow(object):
 
         # определения
         self.BNormalize.clicked.connect(self.openNormalizeDef)
+        self.BVectorize.clicked.connect(self.openVectorizeDef)
+        self.BPrepMeth.clicked.connect(self.openPrepMethDef)
+        self.BReduceDim.clicked.connect(self.openReduceDimDef)
+        self.BPrep.clicked.connect(self.openPrepDef)
+        self.BClust.clicked.connect(self.openClustDef)
+        self.BStem.clicked.connect(self.openStemDef)
+        self.BLem.clicked.connect(self.openLemDef)
+        self.BFilter.clicked.connect(self.openFilterDef)
+        self.BStopWord.clicked.connect(self.openSWDef)
+        self.BToken.clicked.connect(self.openTokenDef)
+        self.BClearData.clicked.connect(self.openClearDataDef)
+        self.BGramm.clicked.connect(self.openNGrammDef)
 
     def initDefDict(self):
         self.defDict = {
@@ -614,6 +626,90 @@ class Ui_MainWindow(object):
         self.normalizeUI = DefWindow.Ui_DefWindow()
         self.normalizeUI.setupUi(self.normalizeDef, self.localSettings, self.openType, Defins.NORMALIZATION)
         self.normalizeDef.show()
+
+    def openVectorizeDef(self):
+        self.vectorizeDef = QtWidgets.QMainWindow()
+        self.vectorizeDef.prevWindow = self
+        self.vectorizeUI = DefWindow.Ui_DefWindow()
+        self.vectorizeUI.setupUi(self.vectorizeDef, self.localSettings, self.openType, Defins.VECTORIZATION)
+        self.vectorizeDef.show()
+
+    def openPrepMethDef(self):
+        self.prepMethDef = QtWidgets.QMainWindow()
+        self.prepMethDef.prevWindow = self
+        self.prepMethUI = DefWindow.Ui_DefWindow()
+        self.prepMethUI.setupUi(self.prepMethDef, self.localSettings, self.openType, Defins.PREPMETH)
+        self.prepMethDef.show()
+
+    def openReduceDimDef(self):
+        self.reduceDef = QtWidgets.QMainWindow()
+        self.reduceDef.prevWindow = self
+        self.reduceUI = DefWindow.Ui_DefWindow()
+        self.reduceUI.setupUi(self.reduceDef, self.localSettings, self.openType, Defins.REDUCEDIM)
+        self.reduceDef.show()
+
+    def openPrepDef(self):
+        self.prepDef = QtWidgets.QMainWindow()
+        self.prepDef.prevWindow = self
+        self.prepUI = DefWindow.Ui_DefWindow()
+        self.prepUI.setupUi(self.prepDef, self.localSettings, self.openType, Defins.PREP)
+        self.prepDef.show()
+
+    def openClustDef(self):
+        self.clustDef = QtWidgets.QMainWindow()
+        self.clustDef.prevWindow = self
+        self.clustUI = DefWindow.Ui_DefWindow()
+        self.clustUI.setupUi(self.clustDef, self.localSettings, self.openType, Defins.CLUST)
+        self.clustDef.show()
+
+    def openStemDef(self):
+        self.stemDef = QtWidgets.QMainWindow()
+        self.stemDef.prevWindow = self
+        self.stemUI = DefWindow.Ui_DefWindow()
+        self.stemUI.setupUi(self.stemDef, self.localSettings, self.openType, Defins.STEM)
+        self.stemDef.show()
+
+    def openLemDef(self):
+        self.lemDef = QtWidgets.QMainWindow()
+        self.lemDef.prevWindow = self
+        self.lemUI = DefWindow.Ui_DefWindow()
+        self.lemUI.setupUi(self.lemDef, self.localSettings, self.openType, Defins.LEM)
+        self.lemDef.show()
+
+    def openFilterDef(self):
+        self.filterDef = QtWidgets.QMainWindow()
+        self.filterDef.prevWindow = self
+        self.filterUI = DefWindow.Ui_DefWindow()
+        self.filterUI.setupUi(self.filterDef, self.localSettings, self.openType, Defins.FILTER)
+        self.filterDef.show()
+
+    def openSWDef(self):
+        self.swDef = QtWidgets.QMainWindow()
+        self.swDef.prevWindow = self
+        self.swUI = DefWindow.Ui_DefWindow()
+        self.swUI.setupUi(self.swDef, self.localSettings, self.openType, Defins.SW)
+        self.swDef.show()
+
+    def openTokenDef(self):
+        self.tokenDef = QtWidgets.QMainWindow()
+        self.tokenDef.prevWindow = self
+        self.tokeneUI = DefWindow.Ui_DefWindow()
+        self.tokeneUI.setupUi(self.tokenDef, self.localSettings, self.openType, Defins.TOKEN)
+        self.tokenDef.show()
+
+    def openClearDataDef(self):
+        self.clearDataDef = QtWidgets.QMainWindow()
+        self.clearDataDef.prevWindow = self
+        self.clearDataUI = DefWindow.Ui_DefWindow()
+        self.clearDataUI.setupUi(self.clearDataDef, self.localSettings, self.openType, Defins.NGRAMM)
+        self.clearDataDef.show()
+
+    def openNGrammDef(self):
+        self.nGrammDef = QtWidgets.QMainWindow()
+        self.nGrammDef.prevWindow = self
+        self.nGrammUI = DefWindow.Ui_DefWindow()
+        self.nGrammUI.setupUi(self.nGrammDef, self.localSettings, self.openType, Defins.NGRAMM)
+        self.nGrammDef.show()
 
 
 if __name__ == "__main__":

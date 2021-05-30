@@ -147,12 +147,6 @@ class Ui_DefWindow(object):
         self.viewType = viewType
         self.defin = defin
 
-        _translate = QtCore.QCoreApplication.translate
-        item = self.TWRefs.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "Определение"))
-        item = self.TWRefs.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "Тип связи"))
-
         self.setupAll()
 
         self.retranslateUi(MainWindow)
@@ -162,6 +156,11 @@ class Ui_DefWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.GBDefInfo.setTitle(_translate("MainWindow", "Информация о понятии"))
+        _translate = QtCore.QCoreApplication.translate
+        item = self.TWRefs.horizontalHeaderItem(0)
+        item.setText(_translate("MainWindow", "Определение"))
+        item = self.TWRefs.horizontalHeaderItem(1)
+        item.setText(_translate("MainWindow", "Тип связи"))
         self.LDef.setText(_translate("MainWindow", "Определение:"))
         self.LRefs.setText(_translate("MainWindow", "Связи:"))
         self.CBUse.setText(_translate("MainWindow", "Использовать"))
@@ -177,10 +176,21 @@ class Ui_DefWindow(object):
 
     def setupRefs(self):
         self.TWRefs.clear()
+        item = QtWidgets.QTableWidgetItem()
+        self.TWRefs.setHorizontalHeaderItem(0, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.TWRefs.setHorizontalHeaderItem(1, item)
         self.TWRefs.setRowCount(len(definRefs[self.defin]))
+        if self.TWRefs.rowCount() == 0:
+            self.TWRefs.hide()
+            return
         for i, ref in enumerate(definRefs[self.defin]):
-            self.TWRefs.setItem(i, 0, QtWidgets.QTableWidgetItem(ref))
+            item = QtWidgets.QTableWidgetItem(ref)
+            item.setToolTip(ref)
+            self.TWRefs.setItem(i, 0, item)
             self.TWRefs.setItem(i, 1, QtWidgets.QTableWidgetItem(definRefs[self.defin][ref]))
+
+        self.TWRefs.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
     def setupButtons(self):
         self.BClose.clicked.connect(self.mainWindow.close)
