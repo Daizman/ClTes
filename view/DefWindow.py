@@ -9,7 +9,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow, settings):
+    def setupUi(self, MainWindow, settings=None):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(317, 624)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -76,6 +76,8 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+
+        self.settings = settings
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)

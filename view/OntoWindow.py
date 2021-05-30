@@ -10,7 +10,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from model.Enums.ViewType import ViewType
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow, settings, openType):
+    def setupUi(self, MainWindow, settings=None, openType=ViewType.VIEW):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1079, 600)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -257,7 +257,7 @@ class Ui_MainWindow(object):
         self.LbGrammUses.setGeometry(QtCore.QRect(100, 450, 41, 16))
         self.LbGrammUses.setObjectName("LbGrammUses")
         self.LbClearIs = QtWidgets.QLabel(self.centralwidget)
-        self.LbClearIs.setGeometry(QtCore.QRect(430, 460, 21, 16))
+        self.LbClearIs.setGeometry(QtCore.QRect(400, 400, 21, 16))
         self.LbClearIs.setObjectName("LbClearIs")
         self.LbClearUses = QtWidgets.QLabel(self.centralwidget)
         self.LbClearUses.setGeometry(QtCore.QRect(620, 400, 41, 16))
@@ -331,7 +331,11 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.settings = settings
+        self.openType = openType
+
         self.initDefDict()
+        self.initWndView()
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -396,17 +400,57 @@ class Ui_MainWindow(object):
                               self.LbLemUses,
                               self.LbFilterUses],
             self.BVectorize: [self.LVectorizeIs, self.LbVectorizeIs],
-            self.BPrepMeth: [self.LPrepMehUseForVert, self.LPrepMethUseForHor, self.LbPrepMethUseFor],
-            self.BReduceDim: [self.LReduceIsVert, self.LReduceUsesHor, self.LbReduceIs],
-            self.BPrep: [self.LClustNext, self.LbPrepNext],
-            self.BClust: [],
-            self.BStem: [self.LStemClear],
-            self.BLem: [self.LLemClear],
-            self.BClearData: [],
-            self.BFilter: [],
-            self.BToken: [self.LTokenUses, self.LbTokenUses],
-            self.BGramm: [self.LGrammUses, self.LbGrammUses],
-            self.BStopWord: [self.LStopWordsUses, self.LbStopWordsUses]
+            self.BPrepMeth: [self.LPrepMehUseForVert,
+                             self.LPrepMethUseForHor,
+                             self.LbPrepMethUseFor,
+                             self.LVectorizeIs,
+                             self.LbVectorizeIs,
+                             self.LNormalizeIs2,
+                             self.LbNormalizeIs],
+            self.BReduceDim: [self.LReduceIsVert,
+                              self.LReduceUsesHor,
+                              self.LbReduceIs,
+                              self.LNormalizeUseFor,
+                              self.LbNormalizeUseFor,
+                              self.LbClearUses],
+            self.BPrep: [self.LClustNext,
+                         self.LbPrepNext,
+                         self.LPrepVert,
+                         self.LPrepMehUseForVert,
+                         self.LPrepMethUseForHor,
+                         self.LbPrepMethUseFor,
+                         self.LbReduceIs],
+            self.BClust: [self.LClustNext, self.LbPrepNext],
+            self.BStem: [self.LStemUses,
+                         self.LbStemUses,
+                         self.LStemClear],
+            self.BLem: [self.LLemUses,
+                        self.LbLemUses,
+                        self.LLemClear],
+            self.BClearData: [self.LClearDataIsVert,
+                              self.LbClearUses,
+                              self.LbClearIs,
+                              self.LClearDataIsHor,
+                              self.LStemClear,
+                              self.LLemClear,
+                              self.LFilterClear],
+            self.BFilter: [self.LFilterUses,
+                           self.LbFilterUses,
+                           self.LFilterClear,
+                           self.LFilterVert,
+                           self.LFilterHor,
+                           self.LTokenUses,
+                           self.LbTokenUses,
+                           self.LStopWordsUses,
+                           self.LbStopWordsUses],
+            self.BToken: [self.LTokenUses,
+                          self.LbTokenUses,
+                          self.LGrammUses,
+                          self.LbGrammUses],
+            self.BGramm: [self.LGrammUses,
+                          self.LbGrammUses],
+            self.BStopWord: [self.LStopWordsUses,
+                             self.LbStopWordsUses]
         }
 
     def initTable(self):
@@ -452,8 +496,44 @@ class Ui_MainWindow(object):
         else:
             self.defs[item.text()].show()
 
+        self.checkLPrepVert()
+        self.checkLFilter()
+        self.checkLClearDataIsHor()
+        self.checkLClearDataIsVert()
+
     def initWndView(self):
-        pass
+        self.BSaveInFile.setEnabled(self.openType == ViewType.EDIT)
+        self.BLocalSave.setEnabled(self.openType == ViewType.EDIT)
+        self.BLoadFromFile.setEnabled(self.openType == ViewType.EDIT)
+        self.BExit.setEnabled(self.openType == ViewType.EDIT)
+
+    def checkLPrepVert(self):
+        if self.LbPrepMethUseFor.isHidden() and self.LbReduceIs.isHidden():
+            self.LPrepVert.hide()
+        else:
+            self.LPrepVert.show()
+
+    def checkLFilter(self):
+        if self.LbStopWordsUses.isHidden() and self.LbTokenUses.isHidden():
+            self.LFilterHor.hide()
+            self.LFilterVert.hide()
+        else:
+            self.LFilterHor.show()
+            self.LFilterVert.show()
+
+    def checkLClearDataIsHor(self):
+        if self.LFilterClear.isHidden() and self.LLemClear.isHidden() and self.LStemClear.isHidden():
+            self.LbClearIs.hide()
+            self.LClearDataIsHor.hide()
+        else:
+            self.LbClearIs.show()
+            self.LClearDataIsHor.show()
+
+    def checkLClearDataIsVert(self):
+        if (self.LClearDataIsHor.isHidden() and self.LReduceUsesHor.isHidden()) or self.BClearData.isHidden():
+            self.LClearDataIsVert.hide()
+        else:
+            self.LClearDataIsVert.show()
 
 
 if __name__ == "__main__":
