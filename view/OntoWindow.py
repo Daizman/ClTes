@@ -343,6 +343,7 @@ class Ui_MainWindow(object):
         self.initDefDict()
         self.initWndView()
         self.initButtons()
+        self.mainWindow.closeEvent = self.closeEvent
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -527,6 +528,14 @@ class Ui_MainWindow(object):
         self.checkLClearDataIsHor()
         self.checkLClearDataIsVert()
 
+    def closeEvent(self, event):
+        reply = QtWidgets.QMessageBox.question(self.mainWindow, 'Сохранение настроек', 'Сохранить настройки в сессии?',
+                                               QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel, QtWidgets.QMessageBox.Cancel)
+
+        if reply == QtWidgets.QMessageBox.Yes:
+            self.saveSettsLocal()
+        event.accept()
+
     def initWndView(self):
         self.BSaveInFile.setEnabled(self.openType == ViewType.EDIT)
         self.BLocalSave.setEnabled(self.openType == ViewType.EDIT)
@@ -576,11 +585,13 @@ class Ui_MainWindow(object):
 
         with open(f_name, "w") as dump:
             self.settings = self.localSettings
+            self.mainWindow.prevWindow.settings = self.settings
             dumpStr = json.dumps(self.settings.__dict__, cls=EnumEncoder)
             dump.write(dumpStr)
 
     def saveSettsLocal(self):
         self.settings = self.localSettings
+        self.mainWindow.prevWindow.settings = self.settings
 
     def cancelWnd(self):
         self.localSettings = self.settings

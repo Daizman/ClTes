@@ -69,6 +69,9 @@ class MainWindowController:
     def calcMetrix(self):
         pass
 
+    def clustNewsgroup(self):
+        pass
+
     def initOntoWnd(self):
         self.changeSetWnd = QtWidgets.QMainWindow()
         self.changeSetUI = Ui_MainWindow()
