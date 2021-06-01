@@ -23,9 +23,9 @@ class Settings:
                  minClustSize=1,
                  lang=Lang.RUS,
                  tokenRe=r'[\w\d]+',
-                 useTokenFilter=False,
                  vectMeth=None,
-                 clustMeth=None):
+                 clustMeth=None,
+                 useTokenFilter=False):
         self.minWordSize = minWordSize
         self.maxDictSize = maxDictSize
         self.minWordCnt = minWordCnt
@@ -46,4 +46,4 @@ class Settings:
         self.tokenRe = tokenRe
         self.vectMeth = vectMeth
         self.clustMeth = clustMeth
-        self.useTokenFilter = False
+        self.useTokenFilter = useTokenFilter

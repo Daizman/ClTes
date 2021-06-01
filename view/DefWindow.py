@@ -40,7 +40,8 @@ definDict = {
                   ' слов, которые остались после нормализации.',
     Defins.SW: '«Стоп-слово» - часто используемые слова предлоги, артикли и т.п., которые модель запрограммирована'
                ' игнорировать.',
-    Defins.NGRAMM: '«N-грамма» - группа токенов.'
+    Defins.NGRAMM: '«N-грамма» - группа токенов.',
+    Defins.CLEARDATA: '«Очистка данных» - подготовка данных для векторизации при снижении размерности.'
 }
 
 definRefs = {
@@ -68,7 +69,8 @@ definRefs = {
     Defins.STEM: {'Очистка данных': 'isA'},
     Defins.TOKEN: {'N-грамма': 'uses'},
     Defins.SW: {},
-    Defins.NGRAMM: {}
+    Defins.NGRAMM: {},
+    Defins.CLEARDATA: {}
 }
 
 vectVals = {
@@ -87,7 +89,7 @@ clustVals = {
     ClusterizationType.SPECTRAL: 'Spectral',
 }
 
-notEditableDefs = [Defins.NORMALIZATION, Defins.FILTER, Defins.PREP, Defins.REDUCEDIM, Defins.PREPMETH]
+notEditableDefs = [Defins.NORMALIZATION, Defins.FILTER, Defins.PREP, Defins.REDUCEDIM, Defins.PREPMETH, Defins.CLEARDATA]
 usableDefs = [Defins.LEM, Defins.STEM, Defins.SW, Defins.TOKEN, Defins.NGRAMM]
 selectableDefs = [Defins.CLUST, Defins.VECTORIZATION]
 inputDefs = [Defins.TOKEN, Defins.SW, Defins.NGRAMM]
@@ -97,11 +99,11 @@ onlyUse = [Defins.LEM, Defins.STEM]
 class Ui_DefWindow(object):
     def setupUi(self, MainWindow, settings=None, viewType=ViewType.VIEW, defin=Defins.NORMALIZATION):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(317, 624)
+        MainWindow.resize(317, 695)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.GBDefInfo = QtWidgets.QGroupBox(self.centralwidget)
-        self.GBDefInfo.setGeometry(QtCore.QRect(20, 10, 282, 566))
+        self.GBDefInfo.setGeometry(QtCore.QRect(20, 10, 282, 660))
         self.GBDefInfo.setObjectName("GBDefInfo")
         self.formLayout = QtWidgets.QFormLayout(self.GBDefInfo)
         self.formLayout.setObjectName("formLayout")
@@ -141,13 +143,39 @@ class Ui_DefWindow(object):
         self.LVal.setObjectName("LVal")
         self.formLayout.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.LVal)
         self.LEVal = QtWidgets.QLineEdit(self.GBDefInfo)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Ignored)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.LEVal.sizePolicy().hasHeightForWidth())
         self.LEVal.setSizePolicy(sizePolicy)
         self.LEVal.setObjectName("LEVal")
         self.formLayout.setWidget(6, QtWidgets.QFormLayout.LabelRole, self.LEVal)
+        self.LVal2 = QtWidgets.QLabel(self.GBDefInfo)
+        self.LVal2.setObjectName("LVal2")
+        self.formLayout.setWidget(7, QtWidgets.QFormLayout.LabelRole, self.LVal2)
+        self.LEVal2 = QtWidgets.QLineEdit(self.GBDefInfo)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.LEVal2.sizePolicy().hasHeightForWidth())
+        self.LEVal2.setSizePolicy(sizePolicy)
+        self.LEVal2.setObjectName("LEVal2")
+        self.formLayout.setWidget(8, QtWidgets.QFormLayout.LabelRole, self.LEVal2)
+        self.LEVal2.hide()
+        self.LVal2.hide()
+        self.LVal3 = QtWidgets.QLabel(self.GBDefInfo)
+        self.LVal3.setObjectName("LVal3")
+        self.formLayout.setWidget(9, QtWidgets.QFormLayout.LabelRole, self.LVal3)
+        self.LEVal3 = QtWidgets.QLineEdit(self.GBDefInfo)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.LEVal3.sizePolicy().hasHeightForWidth())
+        self.LEVal3.setSizePolicy(sizePolicy)
+        self.LEVal3.setObjectName("LEVal3")
+        self.formLayout.setWidget(10, QtWidgets.QFormLayout.LabelRole, self.LEVal3)
+        self.LEVal3.hide()
+        self.LEVal3.hide()
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
         if defin == Defins.SW:
@@ -168,10 +196,10 @@ class Ui_DefWindow(object):
         self.BClose = QtWidgets.QPushButton(self.GBDefInfo)
         self.BClose.setObjectName("BClose")
         self.gridLayout.addWidget(self.BClose, 0, 1, 1, 1)
-        self.formLayout.setLayout(10, QtWidgets.QFormLayout.SpanningRole, self.gridLayout)
+        self.formLayout.setLayout(12, QtWidgets.QFormLayout.SpanningRole, self.gridLayout)
         self.CBVal = QtWidgets.QComboBox(self.GBDefInfo)
         self.CBVal.setObjectName("CBVal")
-        self.formLayout.setWidget(9, QtWidgets.QFormLayout.SpanningRole, self.CBVal)
+        self.formLayout.setWidget(11, QtWidgets.QFormLayout.SpanningRole, self.CBVal)
         self.CBVal.hide()
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -187,11 +215,12 @@ class Ui_DefWindow(object):
         self.viewType = viewType
         self.defin = defin
 
-        if self.defin in onlyUse:
-            self.LVal.hide()
-
         self.retranslateUi(MainWindow)
         self.setupAll()
+
+        if self.defin in onlyUse:
+            self.LVal.hide()
+            self.LEVal.hide()
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -265,15 +294,15 @@ class Ui_DefWindow(object):
 
     def addSw(self):
         self.LEVal.setText(self.LEVal.text().strip())
-        self.newSW.append(self.LEVal.text())
+        self.newSW.append(self.LEVal.text().strip())
         olderCnt = self.TWWords.rowCount()
         self.TWWords.setRowCount(olderCnt + 1)
-        self.TWWords.setItem(olderCnt, 0, QtWidgets.QTableWidgetItem(self.LEVal.text()))
+        self.TWWords.setItem(olderCnt, 0, QtWidgets.QTableWidgetItem(self.LEVal.text().strip()))
         self.LEVal.setText('')
 
     def removeSw(self):
         if self.TWWords.selectedItems()[0]:
-            self.removeSW.append(self.TWWords.selectedItems()[0].text())
+            self.removeSW.append(self.TWWords.selectedItems()[0].text().strip())
             self.TWWords.removeRow(self.TWWords.selectedIndexes()[0].row())
 
     def setupNotEditableFields(self):
@@ -307,11 +336,20 @@ class Ui_DefWindow(object):
     def setupCBVal(self):
         self.CBVal.show()
         if self.defin == Defins.VECTORIZATION:
+            self.LEVal.hide()
             for el in vectVals:
                 self.CBVal.addItem(vectVals[el], el)
             if self.settings.vectMeth is not None:
                 self.CBVal.setCurrentIndex(self.CBVal.findData(self.settings.vectMeth))
         if self.defin == Defins.CLUST:
+            self.LVal.setText('Количество кластеров:')
+            self.LEVal.setInputMask("999")
+            self.LEVal.setText(str(self.settings.clustCnt))
+            self.LVal2.setText('Количество эпох обучения:')
+            self.LEVal2.setInputMask("99999")
+            self.LEVal2.setText(str(self.settings.maxIters))
+            self.LVal2.show()
+            self.LEVal2.show()
             for el in clustVals:
                 self.CBVal.addItem(clustVals[el], el)
             if self.settings.clustMeth is not None:
@@ -334,6 +372,21 @@ class Ui_DefWindow(object):
                 self.TWWords.setItem(i, 0, QtWidgets.QTableWidgetItem(word))
 
             self.TWWords.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        if self.defin == Defins.TOKEN:
+            self.CBUse.setText('Использовать фильтры на токены')
+            self.LVal.setText('Максимальное количество токенов:')
+            self.LEVal.setInputMask("9999999")
+            self.LEVal.setText(str(self.settings.maxDictSize))
+            self.LVal2.setText('Нижняя граница количества вхождений токена:')
+            self.LEVal2.setInputMask("99999")
+            self.LEVal2.setText(str(self.settings.minWordCnt))
+            self.LVal2.show()
+            self.LEVal2.show()
+            self.LVal3.setText('Максимальная частота вхождений токена (1.00):')
+            self.LEVal3.setInputMask("9.99")
+            self.LEVal3.setText(str(float(self.settings.maxWordFq)))
+            self.LVal3.show()
+            self.LEVal3.show()
 
 
     def setupView(self):
@@ -341,6 +394,11 @@ class Ui_DefWindow(object):
         self.CBVal.setEnabled(False)
         self.LEVal.setReadOnly(True)
         self.BAccept.hide()
+        if self.defin == Defins.SW:
+            self.BAddSw.hide()
+            self.BRemoveSw.hide()
+            self.LEVal.hide()
+            self.LVal.hide()
 
     def saveParam(self):
         if self.defin == Defins.VECTORIZATION:
@@ -349,15 +407,25 @@ class Ui_DefWindow(object):
         if self.defin == Defins.CLUST:
             self.settings.clustMeth = self.CBVal.currentData()
             self.mainWindow.prevWindow.settings.clustMeth = self.settings.clustMeth
+            self.settings.clustCnt = int(self.LEVal.text().strip())
+            self.settings.maxIters = int(self.LEVal2.text().strip())
+            self.mainWindow.prevWindow.settings.clustCnt = self.settings.clustCnt
+            self.mainWindow.prevWindow.settings.maxIters = self.settings.maxIters
         if self.defin == Defins.LEM:
             self.settings.useLem = self.CBUse.isChecked()
             self.mainWindow.prevWindow.settings.useLem = self.settings.useLem
         if self.defin == Defins.STEM:
             self.settings.useStem = self.CBUse.isChecked()
             self.mainWindow.prevWindow.settings.useStem = self.settings.useStem
-        if self.defin == Defins.TOKEN and self.CBUse.isChecked():
+        if self.defin == Defins.TOKEN:
             self.settings.useTokenFilter = self.CBUse.isChecked()
             self.mainWindow.prevWindow.settings.useTokenFilter = self.settings.useTokenFilter
+            self.settings.maxWordFq = float(self.LEVal3.text().strip())
+            self.settings.minWordCnt = int(self.LEVal2.text().strip())
+            self.settings.maxDictSize = int(self.LEVal.text().strip())
+            self.mainWindow.prevWindow.settings.maxWordFq = self.settings.maxWordFq
+            self.mainWindow.prevWindow.settings.minWordCnt = self.settings.minWordCnt
+            self.mainWindow.prevWindow.settings.maxDictSize = self.settings.maxDictSize
         if self.defin == Defins.SW:
             self.settings.useSW = self.CBUse.isChecked()
             self.mainWindow.prevWindow.settings.useSW = self.settings.useSW

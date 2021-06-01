@@ -584,6 +584,7 @@ class Ui_MainWindow(object):
 
     def cancelWnd(self):
         self.localSettings = self.settings
+        self.mainWindow.close()
 
     def openSettings(self):
         options = QtWidgets.QFileDialog.Options()
@@ -704,7 +705,7 @@ class Ui_MainWindow(object):
         self.clearDataDef = QtWidgets.QMainWindow()
         self.clearDataDef.prevWindow = self
         self.clearDataUI = DefWindow.Ui_DefWindow()
-        self.clearDataUI.setupUi(self.clearDataDef, self.localSettings, self.openType, Defins.NGRAMM)
+        self.clearDataUI.setupUi(self.clearDataDef, self.localSettings, self.openType, Defins.CLEARDATA)
         self.clearDataDef.show()
 
     def openNGrammDef(self):

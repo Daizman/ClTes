@@ -13,4 +13,5 @@ class Defins(Enum):
     STEM = 9,
     TOKEN = 10,
     SW = 11,
-    NGRAMM = 12
+    NGRAMM = 12,
+    CLEARDATA = 13
