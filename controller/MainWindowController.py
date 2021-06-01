@@ -74,12 +74,6 @@ class MainWindowController:
         if self.me.CBCorpVal.currentText() == 'The 20 Newsgroups data set':
             self.clustNewsgroup()
 
-    def createPlots(self):
-        pass
-
-    def calcMetrix(self):
-        pass
-
     def clustNewsgroup(self):
         t0 = time()
         self.initNewsgroup()
@@ -97,7 +91,7 @@ class MainWindowController:
         km.fit(self.x)
         self.km = km
         self.work_time = time() - t0
-        self.calc_metrics(km)
+        self.calcMetrix(km)
         self.me.LHomogenVal.setText("Однородность: %0.3f" % self.homogen)
         self.me.LCompletenessVal.setText("Полнота: %0.3f" % self.completeness)
         self.me.LVMeasVal.setText("V-мера: %0.3f" % self.v_measure)
@@ -117,7 +111,7 @@ class MainWindowController:
         if self.settings.vectMeth == VectorizationType.DISTR:
             self.x = vectorizer.distribution(self.dataset.data)
 
-    def create_plot(self):
+    def createPlots(self):
         plt.rcParams["figure.figsize"] = (10, 8)
         fig, (ax1, ax2) = plt.subplots(2, sharex=True)
         fig.suptitle('Сравнение распределения документов по кластерам')
@@ -138,7 +132,7 @@ class MainWindowController:
         ax2.set_title('Предсказанное распределение документов по кластерам')
         fig.show()
 
-    def calc_metrics(self, km):
+    def calcMetrix(self, km):
         self.homogen = metrics.homogeneity_score(self.labels, km.labels_)
         self.completeness = metrics.completeness_score(self.labels, km.labels_)
         self.v_measure = metrics.v_measure_score(self.labels, km.labels_)

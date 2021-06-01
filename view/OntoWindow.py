@@ -586,7 +586,8 @@ class Ui_MainWindow(object):
         with open(f_name, "w") as dump:
             self.settings = self.localSettings
             sw = self.settings.sw
-            self.mainWindow.prevWindow.CBLangVal.setCurrentIndex(self.settings.lang)
+            self.mainWindow.prevWindow.CBLangVal.setCurrentIndex(
+                self.mainWindow.prevWindow.CBLangVal.findData(self.settings.lang))
             self.settings.sw = sw
             self.mainWindow.prevWindow.controller.settings = self.settings
             dumpStr = json.dumps(self.settings.__dict__, cls=EnumEncoder)
@@ -595,7 +596,7 @@ class Ui_MainWindow(object):
     def saveSettsLocal(self):
         self.settings = self.localSettings
         sw = self.settings.sw
-        self.mainWindow.prevWindow.CBLangVal.setCurrentIndex(self.settings.lang)
+        self.mainWindow.prevWindow.CBLangVal.setCurrentIndex(self.mainWindow.prevWindow.CBLangVal.findData(self.settings.lang))
         self.settings.sw = sw
         self.mainWindow.prevWindow.controller.settings = self.settings
 
