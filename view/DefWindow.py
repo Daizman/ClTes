@@ -150,6 +150,13 @@ class Ui_DefWindow(object):
         self.formLayout.setWidget(6, QtWidgets.QFormLayout.LabelRole, self.LEVal)
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
+        if defin == Defins.SW:
+            self.BAddSw = QtWidgets.QPushButton(self.GBDefInfo)
+            self.BAddSw.setObjectName("BAddSw")
+            self.BAddSw.setGeometry(QtCore.QRect(160, 500, 40, 20))
+            self.BRemoveSw = QtWidgets.QPushButton(self.GBDefInfo)
+            self.BRemoveSw.setObjectName("BRemoveSw")
+            self.BRemoveSw.setGeometry(QtCore.QRect(210, 500, 40, 20))
         self.BAccept = QtWidgets.QPushButton(self.GBDefInfo)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -161,10 +168,10 @@ class Ui_DefWindow(object):
         self.BClose = QtWidgets.QPushButton(self.GBDefInfo)
         self.BClose.setObjectName("BClose")
         self.gridLayout.addWidget(self.BClose, 0, 1, 1, 1)
-        self.formLayout.setLayout(8, QtWidgets.QFormLayout.SpanningRole, self.gridLayout)
+        self.formLayout.setLayout(10, QtWidgets.QFormLayout.SpanningRole, self.gridLayout)
         self.CBVal = QtWidgets.QComboBox(self.GBDefInfo)
         self.CBVal.setObjectName("CBVal")
-        self.formLayout.setWidget(7, QtWidgets.QFormLayout.SpanningRole, self.CBVal)
+        self.formLayout.setWidget(9, QtWidgets.QFormLayout.SpanningRole, self.CBVal)
         self.CBVal.hide()
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -200,6 +207,8 @@ class Ui_DefWindow(object):
         else:
             item = self.TWWords.horizontalHeaderItem(0)
             item.setText(_translate("MainWindow", "Стоп-слово"))
+            self.BAddSw.setText(_translate("MainWindow", "+"))
+            self.BRemoveSw.setText(_translate("MainWindow", "-"))
         self.LDef.setText(_translate("MainWindow", "Определение:"))
         self.LRefs.setText(_translate("MainWindow", "Связи:"))
         self.CBUse.setText(_translate("MainWindow", "Использовать"))
@@ -248,6 +257,24 @@ class Ui_DefWindow(object):
     def setupButtons(self):
         self.BClose.clicked.connect(self.mainWindow.close)
         self.BAccept.clicked.connect(self.saveParam)
+        if self.defin == Defins.SW:
+            self.newSW = []
+            self.removeSW = []
+            self.BAddSw.clicked.connect(self.addSw)
+            self.BRemoveSw.clicked.connect(self.removeSw)
+
+    def addSw(self):
+        self.LEVal.setText(self.LEVal.text().strip())
+        self.newSW.append(self.LEVal.text())
+        olderCnt = self.TWWords.rowCount()
+        self.TWWords.setRowCount(olderCnt + 1)
+        self.TWWords.setItem(olderCnt, 0, QtWidgets.QTableWidgetItem(self.LEVal.text()))
+        self.LEVal.setText('')
+
+    def removeSw(self):
+        if self.TWWords.selectedItems()[0]:
+            self.removeSW.append(self.TWWords.selectedItems()[0].text())
+            self.TWWords.removeRow(self.TWWords.selectedIndexes()[0].row())
 
     def setupNotEditableFields(self):
         self.CBUse.hide()
@@ -334,6 +361,12 @@ class Ui_DefWindow(object):
         if self.defin == Defins.SW:
             self.settings.useSW = self.CBUse.isChecked()
             self.mainWindow.prevWindow.settings.useSW = self.settings.useSW
+            for word in self.newSW:
+                self.settings.sw.append(word)
+            for word in self.removeSW:
+                if word in self.settings.sw:
+                    self.settings.sw.remove(word)
+            self.mainWindow.prevWindow.settings.sw = self.settings.sw
         if self.defin == Defins.NGRAMM:
             self.settings.useGramms = self.CBUse.isChecked()
             self.mainWindow.prevWindow.settings.useGramms = self.settings.useGramms
