@@ -48,8 +48,10 @@ class RULangTokenize:
         return tokens
 
     def stemTokenize(self, text):
+        self.__stemmer = SnowballStemmer("russian")
         return [self.__stemmer.stem(t.strip()) for t in self.simpleTokenize(text)]
 
     def lemTokenize(self, text):
+        self.__morph = pymorphy2.MorphAnalyzer()
         return [(term.normal_form for term in self.__morph.parse(t.strip()) if term.tag.POS == self.__posStr)
                 for t in self.simpleTokenize(text)]

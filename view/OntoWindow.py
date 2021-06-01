@@ -585,13 +585,19 @@ class Ui_MainWindow(object):
 
         with open(f_name, "w") as dump:
             self.settings = self.localSettings
-            self.mainWindow.prevWindow.settings = self.settings
+            sw = self.settings.sw
+            self.mainWindow.prevWindow.CBLangVal.setCurrentIndex(self.settings.lang)
+            self.settings.sw = sw
+            self.mainWindow.prevWindow.controller.settings = self.settings
             dumpStr = json.dumps(self.settings.__dict__, cls=EnumEncoder)
             dump.write(dumpStr)
 
     def saveSettsLocal(self):
         self.settings = self.localSettings
-        self.mainWindow.prevWindow.settings = self.settings
+        sw = self.settings.sw
+        self.mainWindow.prevWindow.CBLangVal.setCurrentIndex(self.settings.lang)
+        self.settings.sw = sw
+        self.mainWindow.prevWindow.controller.settings = self.settings
 
     def cancelWnd(self):
         self.localSettings = self.settings

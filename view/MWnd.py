@@ -10,6 +10,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from model.enums.Lang import Lang
 from model.Settings import Settings
 from controller.MainWindowController import MainWindowController
+from nltk.corpus import stopwords as nltk_sw
+
 
 class Ui_MWnd(object):
     def setupUi(self, MWnd):
@@ -187,10 +189,12 @@ class Ui_MWnd(object):
             self.CBCorpVal.addItem('OpenCorpora')
             self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA')
             self.CBCorpVal.addItem('Выбрать на компьютере')
+            self.controller.settings.sw = nltk_sw.words('russian')
         else:
             self.CBCorpVal.addItem('The 20 Newsgroups data set')
             self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA')
             self.CBCorpVal.addItem('Выбрать на компьютере')
+            self.controller.settings.sw = nltk_sw.words('english')
 
     def chandeCorpCombo(self):
         self.controller.corp_name = self.CBCorpVal.currentText()

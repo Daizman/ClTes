@@ -53,8 +53,10 @@ class ENGLangTokenize:
 
     def stemTokenize(self, text):
         filtered_tokens = self.simpleTokenize(text)
+        self.__stemmer = SnowballStemmer("english")
         return [self.__stemmer.stem(t.strip()) for t in filtered_tokens]
 
     def lemTokenize(self, text):
         filtered_tokens = self.simpleTokenize(text)
+        self.__lemmatizer = WordNetLemmatizer()
         return [self.__lemmatizer.lemmatize(t.strip(), pos=self.__posStr) for t in filtered_tokens]
