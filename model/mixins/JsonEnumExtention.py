@@ -4,6 +4,8 @@ from model.enums.PartOfSpeech import PartOfSpeech
 from model.enums.TokenizerType import TokenizerType
 from model.enums.ViewType import ViewType
 from model.enums.Defins import Defins
+from model.enums.VectorizationType import VectorizationType
+from model.enums.ClusterizationType import ClusterizationType
 
 
 PUBLIC_ENUMS = {
@@ -11,7 +13,9 @@ PUBLIC_ENUMS = {
     'PartOfSpeech': PartOfSpeech,
     'TokenizerType': TokenizerType,
     'ViewType': ViewType,
-    'Defins': Defins
+    'Defins': Defins,
+    'VectorizationType': VectorizationType,
+    'ClusterizationType': ClusterizationType
 }
 
 

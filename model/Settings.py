@@ -22,7 +22,10 @@ class Settings:
                  similPers=1,
                  minClustSize=1,
                  lang=Lang.RUS,
-                 tokenRe=r'[\w\d]+'):
+                 tokenRe=r'[\w\d]+',
+                 useTokenFilter=False,
+                 vectMeth=None,
+                 clustMeth=None):
         self.minWordSize = minWordSize
         self.maxDictSize = maxDictSize
         self.minWordCnt = minWordCnt
@@ -41,3 +44,6 @@ class Settings:
         self.minClustSize = minClustSize
         self.lang = lang
         self.tokenRe = tokenRe
+        self.vectMeth = vectMeth
+        self.clustMeth = clustMeth
+        self.useTokenFilter = False

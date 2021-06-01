@@ -43,7 +43,10 @@ class MainWindowController:
                                      setts['similPers'],
                                      setts['minClustSize'],
                                      setts['lang'],
-                                     setts['tokenRe'])
+                                     setts['tokenRe'],
+                                     setts['vectMeth'],
+                                     setts['clustMeth'],
+                                     setts['useTokenFilter'])
 
     def changeSettings(self):
         if not self.changeSetWnd:

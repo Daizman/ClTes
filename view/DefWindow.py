@@ -32,9 +32,10 @@ definDict = {
     Defins.FILTER: '«Фильтрация токенов» - использование следующих методов: удаление токенов по частоте,'
                    ' удаление стоп-слов, выбор наиболее частых слов, исключение пунктуации',
     Defins.LEM: '«Лемматизация» - использование словаря для просмотра каждого токена, и возвращения начальной формы '
-                'слова, называемой леммой, в словарь.',
+                'слова, называемой леммой, в словарь.\nНельзя использовать вместе со стеммингом.',
     Defins.STEM: '«Стемминг» - использование набора правил (или моделей) для разбиения строки на меньшие подстроки,'
-                ' с целью удаления приставок и суффиксов слов, которые изменяют значение.',
+                ' с целью удаления приставок и суффиксов слов, которые изменяют значение.'
+                 '\nНельзя использовать вместе с лемматизацией.',
     Defins.TOKEN: '«Токен» - самостоятельная единица текста, в используемых моделях это обозначение используется для'
                   ' слов, которые остались после нормализации.',
     Defins.SW: '«Стоп-слово» - часто используемые слова предлоги, артикли и т.п., которые модель запрограммирована'
@@ -89,7 +90,8 @@ clustVals = {
 notEditableDefs = [Defins.NORMALIZATION, Defins.FILTER, Defins.PREP, Defins.REDUCEDIM, Defins.PREPMETH]
 usableDefs = [Defins.LEM, Defins.STEM, Defins.SW, Defins.TOKEN, Defins.NGRAMM]
 selectableDefs = [Defins.CLUST, Defins.VECTORIZATION]
-inputDefs = []
+inputDefs = [Defins.TOKEN, Defins.SW, Defins.NGRAMM]
+onlyUse = [Defins.LEM, Defins.STEM]
 
 
 class Ui_DefWindow(object):
@@ -154,6 +156,7 @@ class Ui_DefWindow(object):
         self.CBVal = QtWidgets.QComboBox(self.GBDefInfo)
         self.CBVal.setObjectName("CBVal")
         self.formLayout.setWidget(7, QtWidgets.QFormLayout.SpanningRole, self.CBVal)
+        self.CBVal.hide()
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 317, 21))
@@ -168,9 +171,11 @@ class Ui_DefWindow(object):
         self.viewType = viewType
         self.defin = defin
 
-        self.setupAll()
+        if self.defin in onlyUse:
+            self.LVal.hide()
 
         self.retranslateUi(MainWindow)
+        self.setupAll()
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -200,6 +205,8 @@ class Ui_DefWindow(object):
             self.setupTEVal()
         if self.defin not in usableDefs:
             self.CBUse.hide()
+        else:
+            self.checkDef()
 
         if self.viewType == ViewType.VIEW:
             self.setupView()
@@ -225,6 +232,7 @@ class Ui_DefWindow(object):
 
     def setupButtons(self):
         self.BClose.clicked.connect(self.mainWindow.close)
+        self.BAccept.clicked.connect(self.saveParam)
 
     def setupNotEditableFields(self):
         self.CBUse.hide()
@@ -233,16 +241,46 @@ class Ui_DefWindow(object):
         self.CBVal.hide()
         self.BAccept.hide()
 
+    def checkDef(self):
+        self.CBUse.stateChanged.connect(self.checkConflict)
+        if self.defin == Defins.STEM:
+            self.CBUse.setChecked(self.settings.useStem)
+        if self.defin == Defins.LEM:
+            self.CBUse.setChecked(self.settings.useLem)
+        if self.defin == Defins.NGRAMM:
+            self.CBUse.setChecked(self.settings.useGramms)
+        if self.defin == Defins.SW:
+            self.CBUse.setChecked(self.settings.useSW)
+        if self.defin == Defins.TOKEN:
+            self.CBUse.setChecked(self.settings.useTokenFilter)
+
+    def checkConflict(self):
+        error = QtWidgets.QErrorMessage(self.mainWindow)
+        if self.CBUse.isChecked() and ((self.defin == Defins.LEM and self.settings.useStem)
+                                       or (self.defin == Defins.STEM and self.settings.useLem)):
+            error.setWindowTitle("Предупреждение.")
+            error.showMessage("Можно выбрать либо лемматизацию, либо стемминг.")
+            self.CBUse.setChecked(False)
+
     def setupCBVal(self):
+        self.CBVal.show()
         if self.defin == Defins.VECTORIZATION:
             for el in vectVals:
                 self.CBVal.addItem(vectVals[el], el)
+            if self.settings.vectMeth is not None:
+                self.CBVal.setCurrentIndex(self.CBVal.findData(self.settings.vectMeth))
         if self.defin == Defins.CLUST:
             for el in clustVals:
                 self.CBVal.addItem(clustVals[el], el)
+            if self.settings.clustMeth is not None:
+                self.CBVal.setCurrentIndex(self.CBVal.findData(self.settings.clustMeth))
 
     def setupTEVal(self):
-        pass
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.LEVal.sizePolicy().hasHeightForWidth())
+        self.LEVal.setSizePolicy(sizePolicy)
 
     def setupView(self):
         self.CBUse.setEnabled(False)
@@ -251,30 +289,30 @@ class Ui_DefWindow(object):
         self.BAccept.hide()
 
     def saveParam(self):
-        if self.defin == Defins.NORMALIZATION:
-            return
         if self.defin == Defins.VECTORIZATION:
-            return
-        if self.defin == Defins.PREPMETH:
-            return
-        if self.defin == Defins.REDUCEDIM:
-            return
-        if self.defin == Defins.PREP:
-            return
+            self.settings.vectMeth = self.CBVal.currentData()
+            self.mainWindow.prevWindow.settings.vectMeth = self.settings.vectMeth
         if self.defin == Defins.CLUST:
-            return
-        if self.defin == Defins.FILTER:
-            return
+            self.settings.clustMeth = self.CBVal.currentData()
+            self.mainWindow.prevWindow.settings.clustMeth = self.settings.clustMeth
         if self.defin == Defins.LEM:
-            return
+            self.settings.useLem = self.CBUse.isChecked()
+            self.mainWindow.prevWindow.settings.useLem = self.settings.useLem
         if self.defin == Defins.STEM:
-            return
-        if self.defin == Defins.TOKEN:
-            return
+            self.settings.useStem = self.CBUse.isChecked()
+            self.mainWindow.prevWindow.settings.useStem = self.settings.useStem
+        if self.defin == Defins.TOKEN and self.CBUse.isChecked():
+            self.settings.useTokenFilter = self.CBUse.isChecked()
+            self.mainWindow.prevWindow.settings.useTokenFilter = self.settings.useTokenFilter
         if self.defin == Defins.SW:
-            return
+            self.settings.useSW = self.CBUse.isChecked()
+            self.mainWindow.prevWindow.settings.useSW = self.settings.useSW
         if self.defin == Defins.NGRAMM:
-            return
+            self.settings.useGramms = self.CBUse.isChecked()
+            self.mainWindow.prevWindow.settings.useGramms = self.settings.useGramms
+            self.settings.grammsSize = int(self.LEVal.text())
+            self.mainWindow.prevWindow.settings.grammsSize = self.settings.grammsSize
+        self.mainWindow.close()
 
 
 if __name__ == "__main__":
