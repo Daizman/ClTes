@@ -116,15 +116,24 @@ class Ui_DefWindow(object):
         self.LRefs = QtWidgets.QLabel(self.GBDefInfo)
         self.LRefs.setObjectName("LRefs")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.LRefs)
-        self.TWRefs = QtWidgets.QTableWidget(self.GBDefInfo)
-        self.TWRefs.setObjectName("TWRefs")
-        self.TWRefs.setColumnCount(2)
-        self.TWRefs.setRowCount(0)
-        item = QtWidgets.QTableWidgetItem()
-        self.TWRefs.setHorizontalHeaderItem(0, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.TWRefs.setHorizontalHeaderItem(1, item)
-        self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.TWRefs)
+        if defin != Defins.SW:
+            self.TWRefs = QtWidgets.QTableWidget(self.GBDefInfo)
+            self.TWRefs.setObjectName("TWRefs")
+            self.TWRefs.setColumnCount(2)
+            self.TWRefs.setRowCount(0)
+            item = QtWidgets.QTableWidgetItem()
+            self.TWRefs.setHorizontalHeaderItem(0, item)
+            item = QtWidgets.QTableWidgetItem()
+            self.TWRefs.setHorizontalHeaderItem(1, item)
+            self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.TWRefs)
+        else:
+            self.TWWords = QtWidgets.QTableWidget(self.GBDefInfo)
+            self.TWWords.setObjectName("TWWords")
+            self.TWWords.setColumnCount(1)
+            self.TWWords.setRowCount(0)
+            item = QtWidgets.QTableWidgetItem()
+            self.TWWords.setHorizontalHeaderItem(0, item)
+            self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.TWWords)
         self.CBUse = QtWidgets.QCheckBox(self.GBDefInfo)
         self.CBUse.setObjectName("CBUse")
         self.formLayout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.CBUse)
@@ -183,10 +192,14 @@ class Ui_DefWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.GBDefInfo.setTitle(_translate("MainWindow", "Информация о понятии"))
         _translate = QtCore.QCoreApplication.translate
-        item = self.TWRefs.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "Определение"))
-        item = self.TWRefs.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "Тип связи"))
+        if self.defin != Defins.SW:
+            item = self.TWRefs.horizontalHeaderItem(0)
+            item.setText(_translate("MainWindow", "Определение"))
+            item = self.TWRefs.horizontalHeaderItem(1)
+            item.setText(_translate("MainWindow", "Тип связи"))
+        else:
+            item = self.TWWords.horizontalHeaderItem(0)
+            item.setText(_translate("MainWindow", "Стоп-слово"))
         self.LDef.setText(_translate("MainWindow", "Определение:"))
         self.LRefs.setText(_translate("MainWindow", "Связи:"))
         self.CBUse.setText(_translate("MainWindow", "Использовать"))
@@ -212,6 +225,8 @@ class Ui_DefWindow(object):
             self.setupView()
 
     def setupRefs(self):
+        if self.defin == Defins.SW:
+            return
         self.TWRefs.clear()
         item = QtWidgets.QTableWidgetItem()
         self.TWRefs.setHorizontalHeaderItem(0, item)
@@ -281,6 +296,18 @@ class Ui_DefWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.LEVal.sizePolicy().hasHeightForWidth())
         self.LEVal.setSizePolicy(sizePolicy)
+        if self.defin == Defins.NGRAMM:
+            self.LVal.setText('Размер n-граммы:')
+            self.LEVal.setInputMask("9999")
+            self.LEVal.setText(str(self.settings.grammsSize))
+        if self.defin == Defins.SW:
+            self.TWWords.show()
+            self.TWWords.setRowCount(len(self.settings.sw))
+            for i, word in enumerate(self.settings.sw):
+                self.TWWords.setItem(i, 0, QtWidgets.QTableWidgetItem(word))
+
+            self.TWWords.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+
 
     def setupView(self):
         self.CBUse.setEnabled(False)
@@ -310,7 +337,7 @@ class Ui_DefWindow(object):
         if self.defin == Defins.NGRAMM:
             self.settings.useGramms = self.CBUse.isChecked()
             self.mainWindow.prevWindow.settings.useGramms = self.settings.useGramms
-            self.settings.grammsSize = int(self.LEVal.text())
+            self.settings.grammsSize = int(self.LEVal.text().strip())
             self.mainWindow.prevWindow.settings.grammsSize = self.settings.grammsSize
         self.mainWindow.close()
 
