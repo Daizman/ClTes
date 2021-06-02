@@ -58,7 +58,8 @@ class MainWindowController:
                                      setts['tokenRe'],
                                      setts['vectMeth'],
                                      setts['clustMeth'],
-                                     setts['useTokenFilter'])
+                                     setts['useTokenFilter'],
+                                     setts['distrEpoch'])
             sw = self.settings.sw
             self.me.CBLangVal.setCurrentIndex(self.me.CBLangVal.findData(self.settings.lang))
             self.settings.sw = sw

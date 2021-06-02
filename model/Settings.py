@@ -25,7 +25,8 @@ class Settings:
                  tokenRe=r'[\w\d]+',
                  vectMeth=None,
                  clustMeth=None,
-                 useTokenFilter=False):
+                 useTokenFilter=False,
+                 distrEpoch=10):
         self.minWordSize = minWordSize
         self.maxDictSize = maxDictSize
         self.minWordCnt = minWordCnt
@@ -47,6 +48,7 @@ class Settings:
         self.vectMeth = vectMeth
         self.clustMeth = clustMeth
         self.useTokenFilter = useTokenFilter
+        self.distrEpoch = distrEpoch
 
     def __str__(self):
         return 'Минимальный размер слова: {}\n' \

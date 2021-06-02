@@ -11,6 +11,7 @@ from model.enums.ViewType import ViewType
 from model.enums.Defins import Defins
 from model.enums.VectorizationType import VectorizationType
 from model.enums.ClusterizationType import ClusterizationType
+from model.enums.PartOfSpeech import PartOfSpeech
 
 
 definDict = {
@@ -89,11 +90,17 @@ clustVals = {
     ClusterizationType.SPECTRAL: 'Spectral',
 }
 
+pos = {
+    PartOfSpeech.NOUN: 'Существительное',
+    PartOfSpeech.VERB: 'Глагол',
+    PartOfSpeech.ADJECT: 'Прилагательное'
+}
+
 notEditableDefs = [Defins.NORMALIZATION, Defins.FILTER, Defins.PREP, Defins.REDUCEDIM, Defins.PREPMETH, Defins.CLEARDATA]
 usableDefs = [Defins.LEM, Defins.STEM, Defins.SW, Defins.TOKEN, Defins.NGRAMM]
-selectableDefs = [Defins.CLUST, Defins.VECTORIZATION]
+selectableDefs = [Defins.CLUST, Defins.VECTORIZATION, Defins.LEM]
 inputDefs = [Defins.TOKEN, Defins.SW, Defins.NGRAMM]
-onlyUse = [Defins.LEM, Defins.STEM]
+onlyUse = [Defins.STEM]
 
 
 class Ui_DefWindow(object):
@@ -343,6 +350,10 @@ class Ui_DefWindow(object):
             self.LEVal.hide()
             for el in vectVals:
                 self.CBVal.addItem(vectVals[el], el)
+            self.CBVal.currentTextChanged.connect(self.changeVectMeth)
+            self.LVal.hide()
+            self.LVal3.setText('Метод векторизации:')
+            self.LVal3.show()
             if self.settings.vectMeth is not None:
                 self.CBVal.setCurrentIndex(self.CBVal.findData(self.settings.vectMeth))
         if self.defin == Defins.CLUST:
@@ -363,6 +374,23 @@ class Ui_DefWindow(object):
 
             if self.settings.clustMeth is not None:
                 self.CBVal.setCurrentIndex(self.CBVal.findData(self.settings.clustMeth))
+
+        if self.defin == Defins.LEM:
+            self.LEVal.hide()
+            self.LVal.setText('Часть речи для приведения:')
+            for el in pos:
+                self.CBVal.addItem(pos[el], el)
+
+    def changeVectMeth(self):
+        if self.CBVal.currentData() == VectorizationType.DISTR:
+            self.LVal2.setText('Количество эпох для обучения:')
+            self.LEVal2.setInputMask("999")
+            self.LEVal2.setText(str(self.settings.distrEpoch))
+            self.LVal2.show()
+            self.LEVal2.show()
+        else:
+            self.LVal2.hide()
+            self.LEVal2.hide()
 
     def changeClustMeth(self):
         if self.CBVal.currentData() == ClusterizationType.SPECTRAL:
@@ -387,7 +415,6 @@ class Ui_DefWindow(object):
         else:
             self.LVal2.hide()
             self.LEVal2.hide()
-
 
     def setupTEVal(self):
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
@@ -438,6 +465,8 @@ class Ui_DefWindow(object):
         if self.defin == Defins.VECTORIZATION:
             self.settings.vectMeth = self.CBVal.currentData()
             self.mainWindow.prevWindow.settings.vectMeth = self.settings.vectMeth
+            if self.settings.vectMeth == VectorizationType.DISTR:
+                self.mainWindow.prevWindow.settings.distrEpoch = int(self.LEVal2.text().strip())
         if self.defin == Defins.CLUST:
             self.settings.clustMeth = self.CBVal.currentData()
             self.mainWindow.prevWindow.settings.clustMeth = self.settings.clustMeth
@@ -462,6 +491,7 @@ class Ui_DefWindow(object):
         if self.defin == Defins.LEM:
             self.settings.useLem = self.CBUse.isChecked()
             self.mainWindow.prevWindow.settings.useLem = self.settings.useLem
+            self.mainWindow.prevWindow.settings.pos = self.CBVal.currentData()
         if self.defin == Defins.STEM:
             self.settings.useStem = self.CBUse.isChecked()
             self.mainWindow.prevWindow.settings.useStem = self.settings.useStem

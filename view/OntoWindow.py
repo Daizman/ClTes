@@ -641,7 +641,8 @@ class Ui_MainWindow(object):
                                      setts['tokenRe'],
                                      setts['vectMeth'],
                                      setts['clustMeth'],
-                                     setts['useTokenFilter'])
+                                     setts['useTokenFilter'],
+                                     setts['distrEpoch'])
 
             self.localSettings = self.settings
 
