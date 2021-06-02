@@ -529,6 +529,9 @@ class Ui_MainWindow(object):
         self.checkLClearDataIsVert()
 
     def closeEvent(self, event):
+        if self.openType == ViewType.VIEW:
+            event.accept()
+            return
         reply = QtWidgets.QMessageBox.question(self.mainWindow, 'Сохранение настроек', 'Сохранить настройки в сессии?',
                                                QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel, QtWidgets.QMessageBox.Cancel)
 

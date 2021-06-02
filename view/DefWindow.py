@@ -139,6 +139,7 @@ class Ui_DefWindow(object):
         self.CBUse = QtWidgets.QCheckBox(self.GBDefInfo)
         self.CBUse.setObjectName("CBUse")
         self.formLayout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.CBUse)
+
         self.LVal = QtWidgets.QLabel(self.GBDefInfo)
         self.LVal.setObjectName("LVal")
         self.formLayout.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.LVal)
@@ -150,6 +151,7 @@ class Ui_DefWindow(object):
         self.LEVal.setSizePolicy(sizePolicy)
         self.LEVal.setObjectName("LEVal")
         self.formLayout.setWidget(6, QtWidgets.QFormLayout.LabelRole, self.LEVal)
+
         self.LVal2 = QtWidgets.QLabel(self.GBDefInfo)
         self.LVal2.setObjectName("LVal2")
         self.formLayout.setWidget(7, QtWidgets.QFormLayout.LabelRole, self.LVal2)
@@ -163,6 +165,7 @@ class Ui_DefWindow(object):
         self.formLayout.setWidget(8, QtWidgets.QFormLayout.LabelRole, self.LEVal2)
         self.LEVal2.hide()
         self.LVal2.hide()
+
         self.LVal3 = QtWidgets.QLabel(self.GBDefInfo)
         self.LVal3.setObjectName("LVal3")
         self.formLayout.setWidget(9, QtWidgets.QFormLayout.LabelRole, self.LVal3)
@@ -176,6 +179,7 @@ class Ui_DefWindow(object):
         self.formLayout.setWidget(10, QtWidgets.QFormLayout.LabelRole, self.LEVal3)
         self.LEVal3.hide()
         self.LEVal3.hide()
+
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
         if defin == Defins.SW:
@@ -345,15 +349,45 @@ class Ui_DefWindow(object):
             self.LVal.setText('Количество кластеров:')
             self.LEVal.setInputMask("999")
             self.LEVal.setText(str(self.settings.clustCnt))
+
             self.LVal2.setText('Количество эпох обучения:')
             self.LEVal2.setInputMask("99999")
             self.LEVal2.setText(str(self.settings.maxIters))
             self.LVal2.show()
             self.LEVal2.show()
+
             for el in clustVals:
                 self.CBVal.addItem(clustVals[el], el)
+
+            self.CBVal.currentTextChanged.connect(self.changeClustMeth)
+
             if self.settings.clustMeth is not None:
                 self.CBVal.setCurrentIndex(self.CBVal.findData(self.settings.clustMeth))
+
+    def changeClustMeth(self):
+        if self.CBVal.currentData() == ClusterizationType.SPECTRAL:
+            self.LVal2.setText('Минимальный размер кластера:')
+            self.LEVal2.setInputMask("999")
+            self.LEVal2.setText(str(self.settings.minClustSize))
+            self.LVal2.show()
+            self.LEVal2.show()
+        elif self.CBVal.currentData() == ClusterizationType.BIRCH:
+            self.LVal2.setText('Схожесть текстов для объединения (1.00):')
+            self.LEVal2.setInputMask("9.99")
+            self.LEVal2.setText(str(self.settings.similPers))
+            self.LVal2.show()
+            self.LEVal2.show()
+        elif self.CBVal.currentData() == ClusterizationType.KMEANS or self.CBVal.currentData() \
+                == ClusterizationType.MINIBATCH_KMEANS:
+            self.LVal2.setText('Количество эпох обучения:')
+            self.LEVal2.setInputMask("99999")
+            self.LEVal2.setText(str(self.settings.maxIters))
+            self.LVal2.show()
+            self.LEVal2.show()
+        else:
+            self.LVal2.hide()
+            self.LEVal2.hide()
+
 
     def setupTEVal(self):
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
@@ -408,9 +442,23 @@ class Ui_DefWindow(object):
             self.settings.clustMeth = self.CBVal.currentData()
             self.mainWindow.prevWindow.settings.clustMeth = self.settings.clustMeth
             self.settings.clustCnt = int(self.LEVal.text().strip())
-            self.settings.maxIters = int(self.LEVal2.text().strip())
             self.mainWindow.prevWindow.settings.clustCnt = self.settings.clustCnt
-            self.mainWindow.prevWindow.settings.maxIters = self.settings.maxIters
+
+            if self.settings.clustMeth == ClusterizationType.KMEANS or self.settings.clustMeth == ClusterizationType.MINIBATCH_KMEANS:
+                self.settings.maxIters = int(self.LEVal2.text().strip())
+                self.mainWindow.prevWindow.settings.maxIters = self.settings.maxIters
+            elif self.settings.clustMeth == ClusterizationType.BIRCH:
+                self.settings.similPers = float(self.LEVal2.text().strip())
+                if self.settings.similPers > 1:
+                    error = QtWidgets.QErrorMessage(self.mainWindow)
+                    error.setWindowTitle("Предупреждение.")
+                    error.showMessage("Максимальная кластеров должна быть меньше или равна 1")
+                    return
+                self.mainWindow.prevWindow.settings.similPers = self.settings.similPers
+            elif self.settings.similPers == ClusterizationType.SPECTRAL:
+                self.settings.minClustSize = int(self.LEVal2.text().strip())
+                self.mainWindow.prevWindow.settings.minClustSize = self.settings.minClustSize
+
         if self.defin == Defins.LEM:
             self.settings.useLem = self.CBUse.isChecked()
             self.mainWindow.prevWindow.settings.useLem = self.settings.useLem
@@ -421,6 +469,11 @@ class Ui_DefWindow(object):
             self.settings.useTokenFilter = self.CBUse.isChecked()
             self.mainWindow.prevWindow.settings.useTokenFilter = self.settings.useTokenFilter
             self.settings.maxWordFq = float(self.LEVal3.text().strip())
+            if self.settings.maxWordFq > 1:
+                error = QtWidgets.QErrorMessage(self.mainWindow)
+                error.setWindowTitle("Предупреждение.")
+                error.showMessage("Максимальная частота слова должна быть меньше или равна 1")
+                return
             self.settings.minWordCnt = int(self.LEVal2.text().strip())
             self.settings.maxDictSize = int(self.LEVal.text().strip())
             self.mainWindow.prevWindow.settings.maxWordFq = self.settings.maxWordFq
