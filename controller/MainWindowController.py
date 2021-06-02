@@ -123,7 +123,7 @@ class MainWindowController:
                 + str(self.corporaType) + '_' \
                 + str(self.settings.vectMeth) + '_' \
                 + str(self.settings.clustMeth) + '_' \
-                + str(datetime.datetime.now()) + '.txt'
+                + str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').replace('-', '_') + '.txt'
 
         with open(fName, 'w') as metrSave:
             metrSave.write("Однородность: %0.3f\n" % self.homogen)
