@@ -47,3 +47,28 @@ class Settings:
         self.vectMeth = vectMeth
         self.clustMeth = clustMeth
         self.useTokenFilter = useTokenFilter
+
+    def __str__(self):
+        return 'Минимальный размер слова: {}\n' \
+               'Максимальный размер словаря: {}\n' \
+               'Минимальное количество встречь слова: {}\n' \
+               'Максимальная частота встречь слова: {}\n' \
+               'Минимальная частота встречь слова: {}\n' \
+               'Использование стемминга: {}\n' \
+               'Использование лемматизации: {}\n' \
+               'Использование стоп-слов: {}\n' \
+               'Использование группировки: {}\n' \
+               'Количество токенов в группе: {}\n' \
+               'Количество кластеров: {}\n' \
+               'Количество эпох обучения: {}\n'.format(self.minWordSize,
+                                                       self.maxDictSize,
+                                                       self.minWordCnt,
+                                                       self.maxWordFq,
+                                                       self.minWordFq,
+                                                       'Да' if self.useStem else 'Нет',
+                                                       'Да' if self.useLem else 'Нет',
+                                                       'Да' if self.useSW else 'Нет',
+                                                       'Да' if self.useGramms else 'Нет',
+                                                       self.grammsSize,
+                                                       self.clustCnt,
+                                                       self.maxIters)

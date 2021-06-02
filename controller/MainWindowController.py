@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as plt_colors
 from model.enums.Corpora import Corpora
 import os
+import datetime
 
 
 class MainWindowController:
@@ -107,10 +108,29 @@ class MainWindowController:
             self.me.LCompletenessVal.setText("Полнота: %0.3f" % self.completeness)
             self.me.LVMeasVal.setText("V-мера: %0.3f" % self.v_measure)
             self.me.BGetPlots.setEnabled(True)
+            self.saveMertix()
         else:
             for i, f in enumerate(self.userF):
                 fLocal = f[f.rfind('/'):]
                 os.rename(f, self.dirToAnswer + '/%i' % km.labels_[i] + fLocal)
+
+    def saveMertix(self):
+        if not os.path.exists(os.pardir + '/metricRes'):
+            os.mkdir(os.pardir + '/metricRes')
+        fName = os.pardir + '/metricRes/setup_' \
+                + str(self.settings.lang) + '_' \
+                + str(self.corporaType) + '_' \
+                + str(self.settings.vectMeth) + '_' \
+                + str(self.settings.clustMeth) + '_' \
+                + str(datetime.datetime.now()) + '.txt'
+
+        with open(fName, 'w') as metrSave:
+            metrSave.write("Однородность: %0.3f\n" % self.homogen)
+            metrSave.write("Полнота: %0.3f\n" % self.completeness)
+            metrSave.write("V-мера: %0.3f\n" % self.v_measure)
+            metrSave.write("Время работы: %0.1f с.\n\n\nНастройки:\n" % self.work_time)
+
+            metrSave.write(str(self.settings))
 
 
     def vectorize(self):
