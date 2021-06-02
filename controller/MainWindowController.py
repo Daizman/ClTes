@@ -10,6 +10,8 @@ from model.Clust import Clust
 from sklearn import metrics
 import matplotlib.pyplot as plt
 import matplotlib.colors as plt_colors
+from model.enums.Corpora import Corpora
+import os
 
 
 class MainWindowController:
@@ -18,6 +20,8 @@ class MainWindowController:
         self.mainWindow = mainWindow
         self.settings = settings
         self.changeSetWnd = None
+        self.corporaType = None
+        self.userF = None
 
     def openSettings(self):
         options = QtWidgets.QFileDialog.Options()
@@ -71,12 +75,17 @@ class MainWindowController:
         self.changeSetWnd.show()
 
     def clust(self):
-        if self.me.CBCorpVal.currentText() == 'The 20 Newsgroups data set':
-            self.clustNewsgroup()
+        if self.corporaType == Corpora.NEWS:
+            self.initNewsgroup()
+        if self.corporaType == Corpora.USER:
+            self.dirToAnswer = self.userF[0][:self.userF[0].rfind('/')] + '/answerClusts'
+            if not os.path.exists(self.dirToAnswer):
+                os.mkdir(self.dirToAnswer)
+            for i in range(self.settings.clustCnt):
+                if not os.path.exists(self.dirToAnswer + '/%i' % i):
+                    os.mkdir(self.dirToAnswer + '/%i' % i)
 
-    def clustNewsgroup(self):
         t0 = time()
-        self.initNewsgroup()
         self.vectorize()
         if self.settings.clustMeth == ClusterizationType.KMEANS:
             km = Clust.kMeans(self.settings.clustCnt, self.settings.maxIters, self.x)
@@ -91,25 +100,31 @@ class MainWindowController:
         km.fit(self.x)
         self.km = km
         self.work_time = time() - t0
-        self.calcMetrix(km)
-        self.me.LHomogenVal.setText("Однородность: %0.3f" % self.homogen)
-        self.me.LCompletenessVal.setText("Полнота: %0.3f" % self.completeness)
-        self.me.LVMeasVal.setText("V-мера: %0.3f" % self.v_measure)
         self.me.LWTimeVal.setText("Время работы: %0.1f с." % self.work_time)
-        self.me.BGetPlots.setEnabled(True)
+        if self.corporaType != Corpora.USER:
+            self.calcMetrix(km)
+            self.me.LHomogenVal.setText("Однородность: %0.3f" % self.homogen)
+            self.me.LCompletenessVal.setText("Полнота: %0.3f" % self.completeness)
+            self.me.LVMeasVal.setText("V-мера: %0.3f" % self.v_measure)
+            self.me.BGetPlots.setEnabled(True)
+        else:
+            for i, f in enumerate(self.userF):
+                fLocal = f[f.rfind('/'):]
+                os.rename(f, self.dirToAnswer + '/%i' % km.labels_[i] + fLocal)
+
 
     def vectorize(self):
         vectorizer = LangVectorize(self.settings.lang, self.settings)
         if self.settings.vectMeth == VectorizationType.TF:
-            self.x = vectorizer.tf(self.dataset.data)
-        if self.settings.vectMeth == VectorizationType.TFIDF:
-            self.x = vectorizer.tfidf(self.dataset.data)
-        if self.settings.vectMeth == VectorizationType.HASH:
-            self.x = vectorizer.hash(self.dataset.data)
-        if self.settings.vectMeth == VectorizationType.ONEHOT:
-            self.x = vectorizer.oh(self.dataset.data)
-        if self.settings.vectMeth == VectorizationType.DISTR:
-            self.x = vectorizer.distribution(self.dataset.data)
+            self.x = vectorizer.tf(self.userTexts)
+        elif self.settings.vectMeth == VectorizationType.TFIDF:
+            self.x = vectorizer.tfidf(self.userTexts)
+        elif self.settings.vectMeth == VectorizationType.HASH:
+            self.x = vectorizer.hash(self.userTexts)
+        elif self.settings.vectMeth == VectorizationType.ONEHOT:
+            self.x = vectorizer.oh(self.userTexts)
+        else:
+            self.x = vectorizer.distribution(self.userTexts)
 
     def createPlots(self):
         plt.rcParams["figure.figsize"] = (10, 8)
@@ -164,6 +179,7 @@ class MainWindowController:
         # print("%d categories" % len(self.dataset.target_names))
         self.labels = self.dataset.target
         self.true_k = np.unique(self.labels).shape[0]
+        self.userTexts = self.dataset.data
 
     def initOntoWnd(self):
         self.changeSetWnd = QtWidgets.QMainWindow()

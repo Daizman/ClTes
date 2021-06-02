@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from model.enums.Lang import Lang
+from model.enums.Corpora import Corpora
 from model.Settings import Settings
 from controller.MainWindowController import MainWindowController
 from nltk.corpus import stopwords as nltk_sw
@@ -140,6 +141,7 @@ class Ui_MWnd(object):
         self.statusbar.setObjectName("statusbar")
         MWnd.setStatusBar(self.statusbar)
 
+        self.mainWindow = MWnd
         self.controller = MainWindowController(self, MWnd, Settings())
 
         self.initCombos()
@@ -175,9 +177,11 @@ class Ui_MWnd(object):
 
         self.CBLangVal.currentTextChanged.connect(self.changeLangCombo)
 
-        self.CBCorpVal.addItem('OpenCorpora')
-        self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA')
-        self.CBCorpVal.addItem('Выбрать на компьютере')
+        self.CBCorpVal.addItem('OpenCorpora', Corpora.OPENCORPORA)
+        self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA', Corpora.RUWIKI)
+        self.CBCorpVal.addItem('Выбрать на компьютере', Corpora.USER)
+
+        self.controller.corporaType = self.CBCorpVal.currentData()
 
         self.CBCorpVal.currentTextChanged.connect(self.chandeCorpCombo)
 
@@ -186,18 +190,37 @@ class Ui_MWnd(object):
         self.controller.settings.lang = self.CBLangVal.currentData()
 
         if self.CBLangVal.currentData() == Lang.RUS:
-            self.CBCorpVal.addItem('OpenCorpora')
-            self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA')
-            self.CBCorpVal.addItem('Выбрать на компьютере')
+            self.CBCorpVal.addItem('OpenCorpora', Corpora.OPENCORPORA)
+            self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA', Corpora.RUWIKI)
+            self.CBCorpVal.addItem('Выбрать на компьютере', Corpora.USER)
             self.controller.settings.sw = nltk_sw.words('russian')
         else:
-            self.CBCorpVal.addItem('The 20 Newsgroups data set')
-            self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA')
-            self.CBCorpVal.addItem('Выбрать на компьютере')
+            self.CBCorpVal.addItem('The 20 Newsgroups data set', Corpora.NEWS)
+            self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA', Corpora.ENGWIKI)
+            self.CBCorpVal.addItem('Выбрать на компьютере', Corpora.USER)
             self.controller.settings.sw = nltk_sw.words('english')
 
     def chandeCorpCombo(self):
         self.controller.corp_name = self.CBCorpVal.currentText()
+        self.controller.corporaType = self.CBCorpVal.currentData()
+        if self.controller.corporaType == Corpora.USER:
+            options = QtWidgets.QFileDialog.Options()
+            options |= QtWidgets.QFileDialog.DontUseNativeDialog
+            f_names, _ = QtWidgets.QFileDialog.getOpenFileNames(self.mainWindow,
+                                                                "Выбор файлов",
+                                                                "../../",
+                                                                "Файлы настроек (*.txt, *.doc, *.docx);;Все файлы (*)",
+                                                                options=options)
+            if not f_names:
+                return
+
+            try:
+                self.controller.userTexts = [''.join(open(i)) for i in f_names]
+                self.controller.userF = f_names
+            except:
+                error = QtWidgets.QErrorMessage(self.mainWindow)
+                error.setWindowTitle("Предупреждение.")
+                error.showMessage("Ошибка в имени одного из файлов")
 
     def initButtons(self):
         self.BClust.clicked.connect(self.controller.clust)

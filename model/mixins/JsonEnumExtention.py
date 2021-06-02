@@ -6,6 +6,7 @@ from model.enums.ViewType import ViewType
 from model.enums.Defins import Defins
 from model.enums.VectorizationType import VectorizationType
 from model.enums.ClusterizationType import ClusterizationType
+from model.enums.Corpora import Corpora
 
 
 PUBLIC_ENUMS = {
@@ -15,7 +16,8 @@ PUBLIC_ENUMS = {
     'ViewType': ViewType,
     'Defins': Defins,
     'VectorizationType': VectorizationType,
-    'ClusterizationType': ClusterizationType
+    'ClusterizationType': ClusterizationType,
+    'Corpora': Corpora
 }
 
 

@@ -202,7 +202,11 @@ class LangVectorize:
         model = Doc2Vec(tagged_docs,
                         vector_size=self.settings.maxDictSize,
                         min_count=self.settings.minWordCnt,
-                        epochs=self.settings.maxIters,
+                        epochs=10,
                         workers=4)
 
-        return [it for it in model.docvecs]
+        vectors = []
+        for i in range(model.docvecs.count):
+            vectors.append(model.docvecs[i])
+
+        return vectors
