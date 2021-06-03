@@ -12,6 +12,8 @@ from model.ENGLangTokenize import ENGLangTokenize
 from model.enums.Lang import Lang
 from model.enums.TokenizerType import TokenizerType
 
+import nltk
+
 
 class LangVectorize:
     def __init__(self, lang, settings):
@@ -26,29 +28,29 @@ class LangVectorize:
                     vectorizer = model(max_features=self.settings.maxDictSize,
                                        tokenizer=self.__tokenizer.stemTokenize,
                                        stop_words=self.settings.sw,
-                                       ngram_range=(1, self.settings.grammsSize),
-                                       min_df=self.settings.minWordFq,
+                                       ngram_range=(self.settings.grammsSize, self.settings.grammsSize),
+                                       min_df=self.settings.minWordCnt,
                                        max_df=self.settings.maxWordFq,
                                        binary=binary)
                 else:
                     vectorizer = model(max_features=self.settings.maxDictSize,
                                        tokenizer=self.__tokenizer.stemTokenize,
                                        stop_words=self.settings.sw,
-                                       min_df=self.settings.minWordFq,
+                                       min_df=self.settings.minWordCnt,
                                        max_df=self.settings.maxWordFq,
                                        binary=binary)
             else:
                 if self.settings.useGramms:
                     vectorizer = model(max_features=self.settings.maxDictSize,
                                        tokenizer=self.__tokenizer.stemTokenize,
-                                       ngram_range=(1, self.settings.grammsSize),
-                                       min_df=self.settings.minWordFq,
+                                       ngram_range=(self.settings.grammsSize, self.settings.grammsSize),
+                                       min_df=self.settings.minWordCnt,
                                        max_df=self.settings.maxWordFq,
                                        binary=binary)
                 else:
                     vectorizer = model(max_features=self.settings.maxDictSize,
                                        tokenizer=self.__tokenizer.stemTokenize,
-                                       min_df=self.settings.minWordFq,
+                                       min_df=self.settings.minWordCnt,
                                        max_df=self.settings.maxWordFq,
                                        binary=binary)
         elif self.settings.useLem:
@@ -57,29 +59,29 @@ class LangVectorize:
                     vectorizer = model(max_features=self.settings.maxDictSize,
                                        tokenizer=self.__tokenizer.lemTokenize,
                                        stop_words=self.settings.sw,
-                                       ngram_range=(1, self.settings.grammsSize),
-                                       min_df=self.settings.minWordFq,
+                                       ngram_range=(self.settings.grammsSize, self.settings.grammsSize),
+                                       min_df=self.settings.minWordCnt,
                                        max_df=self.settings.maxWordFq,
                                        binary=binary)
                 else:
                     vectorizer = model(max_features=self.settings.maxDictSize,
                                        tokenizer=self.__tokenizer.lemTokenize,
                                        stop_words=self.settings.sw,
-                                       min_df=self.settings.minWordFq,
+                                       min_df=self.settings.minWordCnt,
                                        max_df=self.settings.maxWordFq,
                                        binary=binary)
             else:
                 if self.settings.useGramms:
                     vectorizer = model(max_features=self.settings.maxDictSize,
                                        tokenizer=self.__tokenizer.lemTokenize,
-                                       ngram_range=(1, self.settings.grammsSize),
-                                       min_df=self.settings.minWordFq,
+                                       ngram_range=(self.settings.grammsSize, self.settings.grammsSize),
+                                       min_df=self.settings.minWordCnt,
                                        max_df=self.settings.maxWordFq,
                                        binary=binary)
                 else:
                     vectorizer = model(max_features=self.settings.maxDictSize,
                                        tokenizer=self.__tokenizer.lemTokenize,
-                                       min_df=self.settings.minWordFq,
+                                       min_df=self.settings.minWordCnt,
                                        max_df=self.settings.maxWordFq,
                                        binary=binary)
         else:
@@ -88,29 +90,29 @@ class LangVectorize:
                     vectorizer = model(max_features=self.settings.maxDictSize,
                                        tokenizer=self.__tokenizer.lemTokenize,
                                        stop_words=self.settings.sw,
-                                       ngram_range=(1, self.settings.grammsSize),
-                                       min_df=self.settings.minWordFq,
+                                       ngram_range=(self.settings.grammsSize, self.settings.grammsSize),
+                                       min_df=self.settings.minWordCnt,
                                        max_df=self.settings.maxWordFq,
                                        binary=binary)
                 else:
                     vectorizer = model(max_features=self.settings.maxDictSize,
                                        tokenizer=self.__tokenizer.lemTokenize,
                                        stop_words=self.settings.sw,
-                                       min_df=self.settings.minWordFq,
+                                       min_df=self.settings.minWordCnt,
                                        max_df=self.settings.maxWordFq,
                                        binary=binary)
             else:
                 if self.settings.useGramms:
                     vectorizer = model(max_features=self.settings.maxDictSize,
                                        tokenizer=self.__tokenizer.lemTokenize,
-                                       ngram_range=(1, self.settings.grammsSize),
-                                       min_df=self.settings.minWordFq,
+                                       ngram_range=(self.settings.grammsSize, self.settings.grammsSize),
+                                       min_df=self.settings.minWordCnt,
                                        max_df=self.settings.maxWordFq,
                                        binary=binary)
                 else:
                     vectorizer = model(max_features=self.settings.maxDictSize,
                                        tokenizer=self.__tokenizer.lemTokenize,
-                                       min_df=self.settings.minWordFq,
+                                       min_df=self.settings.minWordCnt,
                                        max_df=self.settings.maxWordFq,
                                        binary=binary)
 
@@ -132,7 +134,7 @@ class LangVectorize:
                     vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
                                                    tokenizer=self.__tokenizer.stemTokenize,
                                                    stop_words=self.settings.sw,
-                                                   ngram_range=(1, self.settings.grammsSize))
+                                                   ngram_range=(self.settings.grammsSize, self.settings.grammsSize))
                 else:
                     vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
                                                    tokenizer=self.__tokenizer.stemTokenize,
@@ -141,7 +143,7 @@ class LangVectorize:
                 if self.settings.useGramms:
                     vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
                                                    tokenizer=self.__tokenizer.stemTokenize,
-                                                   ngram_range=(1, self.settings.grammsSize))
+                                                   ngram_range=(self.settings.grammsSize, self.settings.grammsSize))
                 else:
                     vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
                                                    tokenizer=self.__tokenizer.stemTokenize)
@@ -151,7 +153,7 @@ class LangVectorize:
                     vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
                                                    tokenizer=self.__tokenizer.lemTokenize,
                                                    stop_words=self.settings.sw,
-                                                   ngram_range=(1, self.settings.grammsSize))
+                                                   ngram_range=(self.settings.grammsSize, self.settings.grammsSize))
                 else:
                     vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
                                                    tokenizer=self.__tokenizer.lemTokenize,
@@ -160,7 +162,7 @@ class LangVectorize:
                 if self.settings.useGramms:
                     vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
                                                    tokenizer=self.__tokenizer.lemTokenize,
-                                                   ngram_range=(1, self.settings.grammsSize))
+                                                   ngram_range=(self.settings.grammsSize, self.settings.grammsSize))
                 else:
                     vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
                                                    tokenizer=self.__tokenizer.lemTokenize)
@@ -170,7 +172,7 @@ class LangVectorize:
                     vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
                                                    tokenizer=self.__tokenizer.lemTokenize,
                                                    stop_words=self.settings.sw,
-                                                   ngram_range=(1, self.settings.grammsSize))
+                                                   ngram_range=(self.settings.grammsSize, self.settings.grammsSize))
                 else:
                     vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
                                                    tokenizer=self.__tokenizer.lemTokenize,
@@ -179,7 +181,7 @@ class LangVectorize:
                 if self.settings.useGramms:
                     vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
                                                    tokenizer=self.__tokenizer.lemTokenize,
-                                                   ngram_range=(1, self.settings.grammsSize))
+                                                   ngram_range=(self.settings.grammsSize, self.settings.grammsSize))
                 else:
                     vectorizer = HashingVectorizer(n_features=self.settings.maxDictSize,
                                                    tokenizer=self.__tokenizer.lemTokenize)

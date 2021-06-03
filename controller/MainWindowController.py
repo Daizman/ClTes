@@ -133,7 +133,6 @@ class MainWindowController:
 
             metrSave.write(str(self.settings))
 
-
     def vectorize(self):
         vectorizer = LangVectorize(self.settings.lang, self.settings)
         if self.settings.vectMeth == VectorizationType.TF:
@@ -157,8 +156,8 @@ class MainWindowController:
         for i in range(self.settings.clustCnt):
             pred_i = np.where(self.km.labels_ == i)[0].size
             orig_i = np.where(self.labels == i)[0].size
-            orig_distr.append(pred_i)
-            pred_distr.append(orig_i)
+            orig_distr.append(orig_i)
+            pred_distr.append(pred_i)
         ax1.plot(clusters, orig_distr, 'o')
         ax2.plot(clusters, pred_distr, '*')
         ax1.grid()

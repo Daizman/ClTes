@@ -1,5 +1,6 @@
 from model.enums.PartOfSpeech import PartOfSpeech
 from model.enums.Lang import Lang
+from model.enums.ClusterizationType import ClusterizationType
 from nltk.corpus import stopwords as nltk_sw
 
 
@@ -24,7 +25,7 @@ class Settings:
                  lang=Lang.RUS,
                  tokenRe=r'[\w\d]+',
                  vectMeth=None,
-                 clustMeth=None,
+                 clustMeth=ClusterizationType.KMEANS,
                  useTokenFilter=False,
                  distrEpoch=10):
         self.minWordSize = minWordSize

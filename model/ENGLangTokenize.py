@@ -34,22 +34,20 @@ class ENGLangTokenize:
         if not self.useGramms:
             return [token for token in tokens if re.search(self.tokenRe, token)]
 
-        start_tokens = [token for token in self.tokenRe.findall(txt.lower())
-                        if len(token) >= self.minWordSize and token not in self.stopwords]
-        if len(start_tokens) % self.grammsSize != 0:
-            start_tokens += ['' for _ in range(len(start_tokens) % self.grammsSize)]
+        if len(tokens) % self.grammsSize != 0:
+            tokens += ['' for _ in range(len(tokens) % self.grammsSize)]
 
-        tokens = []
+        res_tokens = []
         temper_token = []
         i = 0
-        for token in start_tokens:
+        for token in tokens:
             i += 1
             temper_token += token
             if i == self.grammsSize:
-                tokens.append(' '.join(temper_token))
+                res_tokens.append(' '.join(temper_token))
                 temper_token = []
                 i = 0
-        return tokens
+        return res_tokens
 
     def stemTokenize(self, text):
         filtered_tokens = self.simpleTokenize(text)

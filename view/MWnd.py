@@ -209,7 +209,7 @@ class Ui_MWnd(object):
             f_names, _ = QtWidgets.QFileDialog.getOpenFileNames(self.mainWindow,
                                                                 "Выбор файлов",
                                                                 "../../",
-                                                                "Файлы настроек (*.txt, *.doc, *.docx);;Все файлы (*)",
+                                                                "Файлы документов (*.txt, *.doc, *.docx);;Все файлы (*)",
                                                                 options=options)
             if not f_names:
                 return
