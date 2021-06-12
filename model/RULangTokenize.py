@@ -1,57 +1,74 @@
+import re
+
 import pymorphy2
+
 from nltk import SnowballStemmer
+
 from model.enums.PartOfSpeech import PartOfSpeech
 from model.enums.TokenizerType import TokenizerType
 
 
 class RULangTokenize:
     def __init__(self, settings):
-        self.tokenRe = settings.tokenRe
-        self.minWordSize = settings.minWordSize
-        self.pos = settings.pos
-        self.__posStr = 'VERB' if self.pos == PartOfSpeech.VERB else 'NOUN' if self.pos == PartOfSpeech.NOUN else 'ADJ'
-        self.stopwords = settings.sw if settings.useSW else []
-        self.useGramms = settings.useGramms
-        self.grammsSize = settings.grammsSize
-        self.__stemmer = None
-        self.__morph = None
+        self.settings = settings
 
-    def tokenize(self, texts, tokenizer_type=TokenizerType.SIMPLE):
-        if tokenizer_type == TokenizerType.SIMPLE:
+        self.__tokenRe = r'[\w\d]+'
+        self.__posStr = 'VERB' if self.settings.pos == PartOfSpeech.VERB \
+            else 'NOUN' if self.settings.pos == PartOfSpeech.NOUN else 'ADJ'
+        self.__morph = None
+        self.__stemmer = None
+
+    def tokenize(self, texts, tokenizerType=TokenizerType.SIMPLE):
+        if tokenizerType == TokenizerType.SIMPLE:
             return [self.simpleTokenize(text) for text in texts]
-        if tokenizer_type == TokenizerType.STEM:
+        if tokenizerType == TokenizerType.STEM:
             self.__stemmer = SnowballStemmer("russian")
             return [self.stemTokenize(text) for text in texts]
         self.__morph = pymorphy2.MorphAnalyzer()
         return [self.lemTokenize(text) for text in texts]
 
     def simpleTokenize(self, txt):
-        if not self.useGramms:
-            return [token for token in self.tokenRe.findall(txt.lower())
-                    if len(token) >= self.minWordSize and token not in self.stopwords]
+        sw = self.settings.sw if self.settings.useSW else []
+        tokens = [token for token in txt.lower().split()
+                  if len(token) >= self.settings.minWordSize and token not in sw]
+        if not self.settings.useGramms:
+            return [token for token in tokens if re.search(self.__tokenRe, token)]
 
-        start_tokens = [token for token in self.tokenRe.findall(txt.lower())
-                        if len(token) >= self.minWordSize and token not in self.stopwords]
-        if len(start_tokens) % self.grammsSize != 0:
-            start_tokens += ['' for _ in range(len(start_tokens) % self.grammsSize)]
+        return self.__grammsTokenize(tokens, self.settings.useLem, self.settings.useStem)
 
-        tokens = []
+    def __grammsTokenize(self, tokens, useLem=False, useStem=False):
+        if len(tokens) % self.settings.grammsSize != 0:
+            tokens += ['' for _ in range(len(tokens) % self.settings.grammsSize)]
+
+        res_tokens = []
         temper_token = []
         i = 0
-        for token in start_tokens:
+        for token in tokens:
             i += 1
-            temper_token += token
-            if i == self.grammsSize:
-                tokens.append(' '.join(temper_token))
+            if useLem:
+                temper_token += self.__stemmer.stem(token.strip())
+            elif useStem:
+                terms = self.__morph.parse(token.strip())
+                termToAdd = ''
+                for term in terms:
+                    if term.tag.POS == self.__posStr:
+                        termToAdd = term.normal_form
+                        break
+                if termToAdd == '':
+                    termToAdd = terms[0].normal_form
+                temper_token += termToAdd
+            else:
+                temper_token += token
+            if i == self.settings.grammsSize:
+                res_tokens.append(' '.join(temper_token))
                 temper_token = []
                 i = 0
-        return tokens
+        return res_tokens
 
     def stemTokenize(self, text):
         self.__stemmer = SnowballStemmer("russian")
-        return [self.__stemmer.stem(t.strip()) for t in self.simpleTokenize(text)]
+        return self.simpleTokenize(text)
 
     def lemTokenize(self, text):
         self.__morph = pymorphy2.MorphAnalyzer()
-        return [(term.normal_form for term in self.__morph.parse(t.strip()) if term.tag.POS == self.__posStr)
-                for t in self.simpleTokenize(text)]
+        return self.simpleTokenize(text)
