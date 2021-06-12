@@ -45,9 +45,9 @@ class ENGLangTokenize:
         i = 0
         for token in tokens:
             i += 1
-            if useLem:
+            if useStem:
                 temper_token += self.__stemmer.stem(token.strip())
-            elif useStem:
+            elif useLem:
                 temper_token += self.__lemmatizer.lemmatize(token.strip(), pos=self.__posStr)
             else:
                 temper_token += token
