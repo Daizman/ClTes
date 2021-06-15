@@ -55,7 +55,6 @@ class MainWindowController:
                                      setts['similPers'],
                                      setts['minClustSize'],
                                      setts['lang'],
-                                     setts['tokenRe'],
                                      setts['vectMeth'],
                                      setts['clustMeth'],
                                      setts['useTokenFilter'],

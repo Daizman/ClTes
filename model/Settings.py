@@ -23,7 +23,6 @@ class Settings:
                  similPers=1,
                  minClustSize=1,
                  lang=Lang.RUS,
-                 tokenRe=r'[\w\d]+',
                  vectMeth=None,
                  clustMeth=ClusterizationType.KMEANS,
                  useTokenFilter=False,
@@ -45,7 +44,6 @@ class Settings:
         self.similPers = similPers
         self.minClustSize = minClustSize
         self.lang = lang
-        self.tokenRe = tokenRe
         self.vectMeth = vectMeth
         self.clustMeth = clustMeth
         self.useTokenFilter = useTokenFilter
