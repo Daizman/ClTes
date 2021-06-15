@@ -8,7 +8,7 @@ from nltk.corpus import stopwords as nltk_sw
 class Settings:
     def __init__(self,
                  minWordSize=0,
-                 maxDictSize=2**20,
+                 maxDictSize=2**16,
                  minWordCnt=1,
                  maxWordFq=1,
                  minWordFq=0,

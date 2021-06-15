@@ -36,6 +36,9 @@ class MainWindowModel:
         self.__changeSetUI = None
 
     def openSettigns(self, fName):
+        if self.settings.lang != self.__me.CBLangVal.currentData():
+            self.settings.lang = self.__me.CBLangVal.currentData()
+
         if not fName:
             return
 
