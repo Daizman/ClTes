@@ -9,9 +9,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from model.enums.Lang import Lang
 from model.enums.Corpora import Corpora
-from model.Settings import Settings
 from controller.MainWindowController import MainWindowController
-from nltk.corpus import stopwords as nltk_sw
+
+import textract
 
 
 class Ui_MWnd(object):
@@ -142,7 +142,7 @@ class Ui_MWnd(object):
         MWnd.setStatusBar(self.statusbar)
 
         self.mainWindow = MWnd
-        self.controller = MainWindowController(self, MWnd, Settings())
+        self.__controller = MainWindowController(self, MWnd)
 
         self.initCombos()
         self.initButtons()
@@ -181,53 +181,52 @@ class Ui_MWnd(object):
         self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA', Corpora.RUWIKI)
         self.CBCorpVal.addItem('Выбрать на компьютере', Corpora.USER)
 
-        self.controller.corporaType = self.CBCorpVal.currentData()
-
         self.CBCorpVal.currentTextChanged.connect(self.chandeCorpCombo)
 
     def changeLangCombo(self):
         self.CBCorpVal.clear()
-        self.controller.settings.lang = self.CBLangVal.currentData()
 
         if self.CBLangVal.currentData() == Lang.RUS:
             self.CBCorpVal.addItem('OpenCorpora', Corpora.OPENCORPORA)
             self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA', Corpora.RUWIKI)
             self.CBCorpVal.addItem('Выбрать на компьютере', Corpora.USER)
-            self.controller.settings.sw = nltk_sw.words('russian')
         else:
             self.CBCorpVal.addItem('The 20 Newsgroups data set', Corpora.NEWS)
             self.CBCorpVal.addItem('WIKIPEDIA MONOLINGUAL CORPORA', Corpora.ENGWIKI)
             self.CBCorpVal.addItem('Выбрать на компьютере', Corpora.USER)
-            self.controller.settings.sw = nltk_sw.words('english')
 
     def chandeCorpCombo(self):
-        self.controller.corp_name = self.CBCorpVal.currentText()
-        self.controller.corporaType = self.CBCorpVal.currentData()
-        if self.controller.corporaType == Corpora.USER:
+        if self.CBCorpVal.currentData() == Corpora.USER:
             options = QtWidgets.QFileDialog.Options()
             options |= QtWidgets.QFileDialog.DontUseNativeDialog
-            f_names, _ = QtWidgets.QFileDialog.getOpenFileNames(self.mainWindow,
+            fNames, _ = QtWidgets.QFileDialog.getOpenFileNames(self.mainWindow,
                                                                 "Выбор файлов",
                                                                 "../../",
                                                                 "Файлы документов (*.txt, *.doc, *.docx);;Все файлы (*)",
                                                                 options=options)
-            if not f_names:
+            if not fNames:
                 return
 
             try:
-                self.controller.userTexts = [''.join(open(i)) for i in f_names]
-                self.controller.userF = f_names
+                uTexts = []
+                for f in fNames:
+                    if f.endswith((".doc", ".docx")):
+                        uTexts.append(textract.process(f))
+                    elif f.endswith(".txt"):
+                        uTexts.append(''.join(open(f)))
+                self.__controller.setUserTexts(uTexts)
+                self.__controller.setUserFNames(fNames)
             except:
                 error = QtWidgets.QErrorMessage(self.mainWindow)
                 error.setWindowTitle("Предупреждение.")
                 error.showMessage("Ошибка в имени одного из файлов")
 
     def initButtons(self):
-        self.BClust.clicked.connect(self.controller.clust)
-        self.BOpenSet.clicked.connect(self.controller.openSettings)
-        self.BEditSet.clicked.connect(self.controller.changeSettings)
-        self.BViewOnto.clicked.connect(self.controller.viewSettings)
-        self.BGetPlots.clicked.connect(self.controller.createPlots)
+        self.BClust.clicked.connect(self.__controller.clust)
+        self.BOpenSet.clicked.connect(self.__controller.openSettings)
+        self.BEditSet.clicked.connect(self.__controller.changeSettings)
+        self.BViewOnto.clicked.connect(self.__controller.viewSettings)
+        self.BGetPlots.clicked.connect(self.__controller.createPlots)
 
 
 if __name__ == "__main__":
