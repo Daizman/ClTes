@@ -29,7 +29,16 @@ class MainWindowController:
         self.__model.viewSettings()
 
     def clust(self):
-        self.__model.clust()
+        try:
+            self.__model.clust()
+        except MemoryError as e:
+            error = QtWidgets.QErrorMessage(self.__meWnd)
+            error.setWindowTitle("Ошибка.")
+            error.showMessage("Недостаточно памяти.")
+        except BaseException as e:
+            error = QtWidgets.QErrorMessage(self.__meWnd)
+            error.setWindowTitle("Ошибка.")
+            error.showMessage(str(e))
 
         self.__me.LWTimeVal.setText("Время работы: %0.1f с." % self.__model.metrix.time)
         if self.__me.CBCorpVal.currentData() != Corpora.USER:
