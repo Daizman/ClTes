@@ -2,8 +2,6 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import HashingVectorizer
 
-from nltk.corpus import stopwords as nltk_sw
-
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 
 from model.RULangTokenize import RULangTokenize
@@ -12,14 +10,11 @@ from model.ENGLangTokenize import ENGLangTokenize
 from model.enums.Lang import Lang
 from model.enums.TokenizerType import TokenizerType
 
-import nltk
-
 
 class LangVectorize:
-    def __init__(self, lang, settings):
-        self.lang = lang
+    def __init__(self, settings):
         self.settings = settings
-        self.__tokenizer = RULangTokenize(self.settings) if self.lang == Lang.RUS else ENGLangTokenize(self.settings)
+        self.__tokenizer = RULangTokenize(self.settings) if self.settings.lang == Lang.RUS else ENGLangTokenize(self.settings)
 
     def vect(self, model, corpus, binary=False):
         if self.settings.useStem:
