@@ -1,6 +1,7 @@
 from model.enums.PartOfSpeech import PartOfSpeech
 from model.enums.Lang import Lang
 from model.enums.ClusterizationType import ClusterizationType
+from model.enums.VectorizationType import VectorizationType
 from nltk.corpus import stopwords as nltk_sw
 
 
@@ -23,7 +24,7 @@ class Settings:
                  similPers=1,
                  minClustSize=1,
                  lang=Lang.RUS,
-                 vectMeth=None,
+                 vectMeth=VectorizationType.TFIDF,
                  clustMeth=ClusterizationType.KMEANS,
                  useTokenFilter=False,
                  distrEpoch=10):

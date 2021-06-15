@@ -33,6 +33,7 @@ class MainWindowModel:
         self.__userF = None
         self.__corporaType = None
         self.__changeSetWnd = None
+        self.__changeSetUI = None
 
     def openSettigns(self, fName):
         if not fName:
@@ -64,7 +65,7 @@ class MainWindowModel:
                                      setts['distrEpoch'])
 
     def changeSettings(self):
-        if not self.changeSetWnd:
+        if not self.__changeSetWnd:
             self.__initOntoWnd()
 
         if self.settings.lang != self.__me.CBLangVal.currentData():
@@ -72,24 +73,24 @@ class MainWindowModel:
             self.settings.sw = nltk_sw.words('russian') if self.settings.lang == Lang.RUS else nltk_sw.words('english')
 
         self.settings.lang = self.__me.CBLangVal.currentData()
-        self.changeSetUI.setupUi(self.__changeSetWnd, self.settings, ViewType.EDIT)
-        self.changeSetWnd.show()
+        self.__changeSetUI.setupUi(self.__changeSetWnd, self.settings, ViewType.EDIT)
+        self.__changeSetWnd.show()
 
     def viewSettings(self):
-        if not self.changeSetWnd:
+        if not self.__changeSetWnd:
             self.__initOntoWnd()
 
         if self.settings.lang != self.__me.CBLangVal.currentData():
             self.settings.lang = self.__me.CBLangVal.currentData()
             self.settings.sw = nltk_sw.words('russian') if self.settings.lang == Lang.RUS else nltk_sw.words('english')
 
-        self.changeSetUI.setupUi(self.__changeSetWnd, self.settings, ViewType.VIEW)
-        self.changeSetWnd.show()
+        self.__changeSetUI.setupUi(self.__changeSetWnd, self.settings, ViewType.VIEW)
+        self.__changeSetWnd.show()
 
     def __initOntoWnd(self):
-        self.changeSetWnd = QtWidgets.QMainWindow()
-        self.changeSetUI = Ui_MainWindow()
-        self.changeSetWnd.prevWindow = self.__me
+        self.__changeSetWnd = QtWidgets.QMainWindow()
+        self.__changeSetUI = Ui_MainWindow()
+        self.__changeSetWnd.prevWindow = self.__me
 
     def clust(self):
         self.initDataset()
