@@ -7,10 +7,10 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from model.Settings import Settings
 from model.mixins.JsonEnumExtention import *
 from view import DefWindow
 from model.enums.Defins import Defins
+from controller.OntoWindowController import OntoWindowController
 
 
 class Ui_MainWindow(object):
@@ -335,19 +335,27 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.mainWindow = MainWindow
         self.settings = settings
+        self.__meWnd = MainWindow
         self.__localSettings = settings
         self.__openType = openType
+        self.__defDict = None
+        self.__defs = None
+        self.__strDefins = None
+        self.__controller = OntoWindowController(self.__localSettings)
+        self.__defWindow = None
+        self.__defWindowUI = None
 
-        self.initDefDict()
-        self.initWndView()
+        self.__initDefDict()
+        self.__initWndView()
+        self.__initDefWnd()
+        self.__initStrDefins()
         self.initButtons()
-        self.mainWindow.closeEvent = self.closeEvent
+        self.__meWnd.closeEvent = self.closeEvent
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        self.initTable()
+        self.__initTable()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -392,28 +400,61 @@ class Ui_MainWindow(object):
 
     def initButtons(self):
         # кнопки управления
-        self.BSaveInFile.clicked.connect(self.saveSettsInFile)
-        self.BLocalSave.clicked.connect(self.saveSettsLocal)
-        self.BLoadFromFile.clicked.connect(self.openSettings)
-        self.BExit.clicked.connect(self.cancelWnd)
+        self.BSaveInFile.clicked.connect(self.__saveSettsInFile)
+        self.BLocalSave.clicked.connect(self.__saveSettsLocal)
+        self.BLoadFromFile.clicked.connect(self.__openSetts)
+        self.BExit.clicked.connect(self.__cancelWnd)
 
         # определения
-        self.BNormalize.clicked.connect(self.openNormalizeDef)
-        self.BVectorize.clicked.connect(self.openVectorizeDef)
-        self.BPrepMeth.clicked.connect(self.openPrepMethDef)
-        self.BReduceDim.clicked.connect(self.openReduceDimDef)
-        self.BPrep.clicked.connect(self.openPrepDef)
-        self.BClust.clicked.connect(self.openClustDef)
-        self.BStem.clicked.connect(self.openStemDef)
-        self.BLem.clicked.connect(self.openLemDef)
-        self.BFilter.clicked.connect(self.openFilterDef)
-        self.BStopWord.clicked.connect(self.openSWDef)
-        self.BToken.clicked.connect(self.openTokenDef)
-        self.BClearData.clicked.connect(self.openClearDataDef)
-        self.BGramm.clicked.connect(self.openNGrammDef)
+        self.BNormalize.clicked.connect(self.openDef)
+        self.BVectorize.clicked.connect(self.openDef)
+        self.BPrepMeth.clicked.connect(self.openDef)
+        self.BReduceDim.clicked.connect(self.openDef)
+        self.BPrep.clicked.connect(self.openDef)
+        self.BClust.clicked.connect(self.openDef)
+        self.BStem.clicked.connect(self.openDef)
+        self.BLem.clicked.connect(self.openDef)
+        self.BFilter.clicked.connect(self.openDef)
+        self.BStopWord.clicked.connect(self.openDef)
+        self.BToken.clicked.connect(self.openDef)
+        self.BClearData.clicked.connect(self.openDef)
+        self.BGramm.clicked.connect(self.openDef)
 
-    def initDefDict(self):
-        self.defDict = {
+    def onCellChanged(self, row, column):
+        item = self.TWDefHide.item(row, 0)
+        itemState = self.TWDefHide.item(row, 1)
+        for hideItems in self.__defDict[self.__defs[item.text()]]:
+            if itemState.checkState() == QtCore.Qt.Checked:
+                hideItems.hide()
+            else:
+                hideItems.show()
+
+        if itemState.checkState() == QtCore.Qt.Checked:
+            self.__defs[item.text()].hide()
+        else:
+            self.__defs[item.text()].show()
+
+        self.__checkLPrepVert()
+        self.__checkLFilter()
+        self.__checkLClearDataIsHor()
+        self.__checkLClearDataIsVert()
+
+    def closeEvent(self, event):
+        if self.__openType == ViewType.VIEW:
+            event.accept()
+            return
+        reply = QtWidgets.QMessageBox.question(self.__meWnd,
+                                               'Сохранение настроек',
+                                               'Сохранить настройки в сессии?',
+                                               QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
+                                               QtWidgets.QMessageBox.Cancel)
+
+        if reply == QtWidgets.QMessageBox.Yes:
+            self.__saveSettsLocal()
+        event.accept()
+
+    def __initDefDict(self):
+        self.__defDict = {
             self.BNormalize: [self.LNormalizeIs,
                               self.LNormalizeAll,
                               self.LNormalizeUseFor,
@@ -480,24 +521,24 @@ class Ui_MainWindow(object):
                              self.LbStopWordsUses]
         }
 
-    def initTable(self):
-        self.defs = {'Нормализация текстов': self.BNormalize,
-                     'Векторизация текстов': self.BVectorize,
-                     'Метод предобработки текста перед кластеризацией': self.BPrepMeth,
-                     'Снижение размерности': self.BReduceDim,
-                     'Предобработка текстов': self.BPrep,
-                     'Кластеризация текстов': self.BClust,
-                     'Фильтрация токенов': self.BFilter,
-                     'Лемматизация': self.BLem,
-                     'Стемминг': self.BStem,
-                     'Токен': self.BToken,
-                     'n-грамма': self.BGramm,
-                     'Стоп-слово': self.BStopWord,
-                     'Очистка данных': self.BClearData}
+    def __initTable(self):
+        self.__defs = {'Нормализация текстов': self.BNormalize,
+                       'Векторизация текстов': self.BVectorize,
+                       'Метод предобработки текста перед кластеризацией': self.BPrepMeth,
+                       'Снижение размерности': self.BReduceDim,
+                       'Предобработка текстов': self.BPrep,
+                       'Кластеризация текстов': self.BClust,
+                       'Фильтрация токенов': self.BFilter,
+                       'Лемматизация': self.BLem,
+                       'Стемминг': self.BStem,
+                       'Токен': self.BToken,
+                       'n-грамма': self.BGramm,
+                       'Стоп-слово': self.BStopWord,
+                       'Очистка данных': self.BClearData}
 
-        self.TWDefHide.setRowCount(len(self.defs))
+        self.TWDefHide.setRowCount(len(self.__defs))
 
-        for i, defin in enumerate(self.defs):
+        for i, defin in enumerate(self.__defs):
             self.TWDefHide.setItem(i, 0, QtWidgets.QTableWidgetItem(defin))
 
             item = QtWidgets.QTableWidgetItem()
@@ -509,49 +550,36 @@ class Ui_MainWindow(object):
         self.TWDefHide.cellChanged.connect(self.onCellChanged)
         self.TWDefHide.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
-    def onCellChanged(self, row, column):
-        item = self.TWDefHide.item(row, 0)
-        itemState = self.TWDefHide.item(row, 1)
-        for hideItems in self.defDict[self.defs[item.text()]]:
-            if itemState.checkState() == QtCore.Qt.Checked:
-                hideItems.hide()
-            else:
-                hideItems.show()
-
-        if itemState.checkState() == QtCore.Qt.Checked:
-            self.defs[item.text()].hide()
-        else:
-            self.defs[item.text()].show()
-
-        self.checkLPrepVert()
-        self.checkLFilter()
-        self.checkLClearDataIsHor()
-        self.checkLClearDataIsVert()
-
-    def closeEvent(self, event):
-        if self.__openType == ViewType.VIEW:
-            event.accept()
-            return
-        reply = QtWidgets.QMessageBox.question(self.mainWindow, 'Сохранение настроек', 'Сохранить настройки в сессии?',
-                                               QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel, QtWidgets.QMessageBox.Cancel)
-
-        if reply == QtWidgets.QMessageBox.Yes:
-            self.saveSettsLocal()
-        event.accept()
-
-    def initWndView(self):
+    def __initWndView(self):
         self.BSaveInFile.setEnabled(self.__openType == ViewType.EDIT)
         self.BLocalSave.setEnabled(self.__openType == ViewType.EDIT)
         self.BLoadFromFile.setEnabled(self.__openType == ViewType.EDIT)
         self.BExit.setEnabled(self.__openType == ViewType.EDIT)
 
-    def checkLPrepVert(self):
+    def __initStrDefins(self):
+        self.__strDefins = {
+            'Нормализация текстов': Defins.NORMALIZATION,
+            'Векторизация текстов': Defins.VECTORIZATION,
+            'Метод предобработки текста \nперед кластеризацией': Defins.PREPMETH,
+            'Снижение размерности': Defins.REDUCEDIM,
+            'Предобработка текстов': Defins.PREP,
+            'Кластеризация текстов': Defins.CLUST,
+            'Фильтрация токенов': Defins.FILTER,
+            'Лемматизация': Defins.LEM,
+            'Стемминг': Defins.STEM,
+            'Токен': Defins.TOKEN,
+            'n-грамма': Defins.NGRAMM,
+            'Стоп-слово': Defins.SW,
+            'Очистка данных': Defins.CLEARDATA
+        }
+
+    def __checkLPrepVert(self):
         if self.LbPrepMethUseFor.isHidden() and self.LbReduceIs.isHidden():
             self.LPrepVert.hide()
         else:
             self.LPrepVert.show()
 
-    def checkLFilter(self):
+    def __checkLFilter(self):
         if self.LbStopWordsUses.isHidden() and self.LbTokenUses.isHidden():
             self.LFilterHor.hide()
             self.LFilterVert.hide()
@@ -559,7 +587,7 @@ class Ui_MainWindow(object):
             self.LFilterHor.show()
             self.LFilterVert.show()
 
-    def checkLClearDataIsHor(self):
+    def __checkLClearDataIsHor(self):
         if self.LFilterClear.isHidden() and self.LLemClear.isHidden() and self.LStemClear.isHidden():
             self.LbClearIs.hide()
             self.LClearDataIsHor.hide()
@@ -567,174 +595,49 @@ class Ui_MainWindow(object):
             self.LbClearIs.show()
             self.LClearDataIsHor.show()
 
-    def checkLClearDataIsVert(self):
+    def __checkLClearDataIsVert(self):
         if (self.LClearDataIsHor.isHidden() and self.LReduceUsesHor.isHidden()) or self.BClearData.isHidden():
             self.LClearDataIsVert.hide()
         else:
             self.LClearDataIsVert.show()
 
-    def saveSettsInFile(self):
+    def __saveSettsInFile(self):
         options = QtWidgets.QFileDialog.Options()
         options |= QtWidgets.QFileDialog.DontUseNativeDialog
-        f_name, _ = QtWidgets.QFileDialog.getSaveFileName(self.mainWindow,
+        fName, _ = QtWidgets.QFileDialog.getSaveFileName(self.__meWnd,
                                                           "Сохранение",
                                                           "../settingsTemplates",
                                                           "Файлы настроек (*.json)",
                                                           options=options)
-        if not f_name:
-            return
+        self.__saveSettsLocal()
+        self.__controller.saveSettsInFile(fName)
 
-        f_name = f_name if f_name.endswith('.json') else f_name + '.json'
-
-        with open(f_name, "w") as dump:
-            self.settings = self.__localSettings
-            sw = self.settings.sw
-            self.mainWindow.prevWindow.CBLangVal.setCurrentIndex(
-                self.mainWindow.prevWindow.CBLangVal.findData(self.settings.lang))
-            self.settings.sw = sw
-            self.mainWindow.prevWindow.controller.settings = self.settings
-            dumpStr = json.dumps(self.settings.__dict__, cls=EnumEncoder)
-            dump.write(dumpStr)
-
-    def saveSettsLocal(self):
+    def __saveSettsLocal(self):
         self.settings = self.__localSettings
-        sw = self.settings.sw
-        self.mainWindow.prevWindow.CBLangVal.setCurrentIndex(self.mainWindow.prevWindow.CBLangVal.findData(self.settings.lang))
-        self.settings.sw = sw
-        self.mainWindow.prevWindow.controller.settings = self.settings
+        self.__meWnd.prevWindow.setSettigns(self.settings)
 
-    def cancelWnd(self):
+    def __cancelWnd(self):
         self.__localSettings = self.settings
-        self.mainWindow.close()
+        self.__meWnd.close()
 
-    def openSettings(self):
+    def __openSetts(self):
         options = QtWidgets.QFileDialog.Options()
         options |= QtWidgets.QFileDialog.DontUseNativeDialog
-        f_name, _ = QtWidgets.QFileDialog.getOpenFileName(self.mainWindow,
+        fName, _ = QtWidgets.QFileDialog.getOpenFileName(self.__meWnd,
                                                           "Выбор файла настроек",
                                                           "../settingsTemplates",
                                                           "Файлы настроек (*.json)",
                                                           options=options)
-        if not f_name:
-            return
+        self.__localSettings = self.__controller.openSetts(fName)
 
-        with open(f_name) as f_set:
-            f_text = '\n'.join(f_set.readlines()[:2])
-            setts = json.loads(f_text, object_hook=as_enum)
-            self.settings = Settings(setts['minWordSize'],
-                                     setts['maxDictSize'],
-                                     setts['minWordCnt'],
-                                     setts['maxWordFq'],
-                                     setts['minWordFq'],
-                                     setts['useStem'],
-                                     setts['useLem'],
-                                     setts['pos'],
-                                     setts['useSW'],
-                                     setts['sw'],
-                                     setts['useGramms'],
-                                     setts['grammsSize'],
-                                     setts['clustCnt'],
-                                     setts['maxIters'],
-                                     setts['similPers'],
-                                     setts['minClustSize'],
-                                     setts['lang'],
-                                     setts['vectMeth'],
-                                     setts['clustMeth'],
-                                     setts['useTokenFilter'],
-                                     setts['distrEpoch'])
+    def __initDefWnd(self):
+        self.__defWindow = QtWidgets.QMainWindow()
+        self.__defWindow.prevWindow = self
+        self.__defWindowUI = DefWindow.Ui_DefWindow()
 
-            self.__localSettings = self.settings
-
-    def openNormalizeDef(self):
-        self.normalizeDef = QtWidgets.QMainWindow()
-        self.normalizeDef.prevWindow = self
-        self.normalizeUI = DefWindow.Ui_DefWindow()
-        self.normalizeUI.setupUi(self.normalizeDef, self.__localSettings, self.__openType, Defins.NORMALIZATION)
-        self.normalizeDef.show()
-
-    def openVectorizeDef(self):
-        self.vectorizeDef = QtWidgets.QMainWindow()
-        self.vectorizeDef.prevWindow = self
-        self.vectorizeUI = DefWindow.Ui_DefWindow()
-        self.vectorizeUI.setupUi(self.vectorizeDef, self.__localSettings, self.__openType, Defins.VECTORIZATION)
-        self.vectorizeDef.show()
-
-    def openPrepMethDef(self):
-        self.prepMethDef = QtWidgets.QMainWindow()
-        self.prepMethDef.prevWindow = self
-        self.prepMethUI = DefWindow.Ui_DefWindow()
-        self.prepMethUI.setupUi(self.prepMethDef, self.__localSettings, self.__openType, Defins.PREPMETH)
-        self.prepMethDef.show()
-
-    def openReduceDimDef(self):
-        self.reduceDef = QtWidgets.QMainWindow()
-        self.reduceDef.prevWindow = self
-        self.reduceUI = DefWindow.Ui_DefWindow()
-        self.reduceUI.setupUi(self.reduceDef, self.__localSettings, self.__openType, Defins.REDUCEDIM)
-        self.reduceDef.show()
-
-    def openPrepDef(self):
-        self.prepDef = QtWidgets.QMainWindow()
-        self.prepDef.prevWindow = self
-        self.prepUI = DefWindow.Ui_DefWindow()
-        self.prepUI.setupUi(self.prepDef, self.__localSettings, self.__openType, Defins.PREP)
-        self.prepDef.show()
-
-    def openClustDef(self):
-        self.clustDef = QtWidgets.QMainWindow()
-        self.clustDef.prevWindow = self
-        self.clustUI = DefWindow.Ui_DefWindow()
-        self.clustUI.setupUi(self.clustDef, self.__localSettings, self.__openType, Defins.CLUST)
-        self.clustDef.show()
-
-    def openStemDef(self):
-        self.stemDef = QtWidgets.QMainWindow()
-        self.stemDef.prevWindow = self
-        self.stemUI = DefWindow.Ui_DefWindow()
-        self.stemUI.setupUi(self.stemDef, self.__localSettings, self.__openType, Defins.STEM)
-        self.stemDef.show()
-
-    def openLemDef(self):
-        self.lemDef = QtWidgets.QMainWindow()
-        self.lemDef.prevWindow = self
-        self.lemUI = DefWindow.Ui_DefWindow()
-        self.lemUI.setupUi(self.lemDef, self.__localSettings, self.__openType, Defins.LEM)
-        self.lemDef.show()
-
-    def openFilterDef(self):
-        self.filterDef = QtWidgets.QMainWindow()
-        self.filterDef.prevWindow = self
-        self.filterUI = DefWindow.Ui_DefWindow()
-        self.filterUI.setupUi(self.filterDef, self.__localSettings, self.__openType, Defins.FILTER)
-        self.filterDef.show()
-
-    def openSWDef(self):
-        self.swDef = QtWidgets.QMainWindow()
-        self.swDef.prevWindow = self
-        self.swUI = DefWindow.Ui_DefWindow()
-        self.swUI.setupUi(self.swDef, self.__localSettings, self.__openType, Defins.SW)
-        self.swDef.show()
-
-    def openTokenDef(self):
-        self.tokenDef = QtWidgets.QMainWindow()
-        self.tokenDef.prevWindow = self
-        self.tokeneUI = DefWindow.Ui_DefWindow()
-        self.tokeneUI.setupUi(self.tokenDef, self.__localSettings, self.__openType, Defins.TOKEN)
-        self.tokenDef.show()
-
-    def openClearDataDef(self):
-        self.clearDataDef = QtWidgets.QMainWindow()
-        self.clearDataDef.prevWindow = self
-        self.clearDataUI = DefWindow.Ui_DefWindow()
-        self.clearDataUI.setupUi(self.clearDataDef, self.__localSettings, self.__openType, Defins.CLEARDATA)
-        self.clearDataDef.show()
-
-    def openNGrammDef(self):
-        self.nGrammDef = QtWidgets.QMainWindow()
-        self.nGrammDef.prevWindow = self
-        self.nGrammUI = DefWindow.Ui_DefWindow()
-        self.nGrammUI.setupUi(self.nGrammDef, self.__localSettings, self.__openType, Defins.NGRAMM)
-        self.nGrammDef.show()
+    def openDef(self):
+        self.__defWindowUI.setupUi(self.__defWindow, self.__localSettings, self.__openType, self.__strDefins[self.__meWnd.sender().text()])
+        self.__defWindow.show()
 
 
 if __name__ == "__main__":

@@ -18,6 +18,9 @@ class MainWindowController:
     def getSettings(self):
         return self.__model.settings
 
+    def setSettings(self, settings):
+        self.__model.settings = settings
+
     def clust(self, wndData):
         self.__model.clust(wndData)
 

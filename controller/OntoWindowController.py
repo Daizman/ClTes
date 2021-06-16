@@ -1,20 +1,24 @@
+from model.OntoWindowModel import OntoWindowModel
+
+
 class OntoWindowController:
-    def __init__(self, settings, me, meWnd):
-        self.settings = settings
-        self.__me = me
-        self.__meWnd = meWnd
+    def __init__(self, settings):
+        self.__model = OntoWindowModel(settings)
 
-    def saveSettsInFile(self):
-        pass
+    def saveSettsInFile(self, fName):
+        if not fName:
+            return
+        fName = fName if fName.endswith('.json') else fName + '.json'
+        self.__model.saveSettsInFile(fName)
 
-    def saveSettsInSession(self):
-        pass
+    def openSetts(self, fName):
+        if not fName:
+            return
+        self.__model.openSetts(fName)
+        return self.__model.settings
 
-    def openSetts(self):
-        pass
+    def getSettings(self):
+        return self.__model.settings
 
-    def cancelWnd(self):
-        pass
-
-    def openDef(self, define):
-        pass
+    def setSettings(self, settings):
+        self.__model.settings = settings

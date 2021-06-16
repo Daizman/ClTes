@@ -242,6 +242,11 @@ class Ui_MWnd(object):
         self.__controller.openSettings(fName, self.CBLangVal.currentData())
         self.CBLangVal.setCurrentIndex(self.CBLangVal.findData(self.__controller.getSettings().lang))
 
+    def __initOntoWnd(self):
+        self.__changeSetWnd = QtWidgets.QMainWindow()
+        self.__changeSetUI = view.OntoWindow.Ui_MainWindow()
+        self.__changeSetWnd.prevWindow = self.__meWnd
+
     def __changeSettings(self):
         if not self.__changeSetWnd:
             self.__initOntoWnd()
@@ -255,6 +260,10 @@ class Ui_MWnd(object):
         self.__controller.setupLangAndSw(self.CBLangVal.currentData())
         self.__changeSetUI.setupUi(self.__changeSetWnd, self.__controller.getSettings(), view.OntoWindow.ViewType.VIEW)
         self.__changeSetWnd.show()
+
+    def setSettings(self, settings):
+        self.__controller.setSettings(settings)
+        self.CBLangVal.setCurrentIndex(self.CBLangVal.findData(settings.lang))
 
     def __clust(self):
         try:
@@ -278,11 +287,6 @@ class Ui_MWnd(object):
             error = QtWidgets.QErrorMessage(self.__meWnd)
             error.setWindowTitle("Ошибка.")
             error.showMessage(str(e))
-
-    def __initOntoWnd(self):
-        self.__changeSetWnd = QtWidgets.QMainWindow()
-        self.__changeSetUI = view.OntoWindow.Ui_MainWindow()
-        self.__changeSetWnd.prevWindow = self.__meWnd
 
 
 if __name__ == "__main__":
