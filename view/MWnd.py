@@ -143,7 +143,7 @@ class Ui_MWnd(object):
         MWnd.setStatusBar(self.statusbar)
 
         self.__meWnd = MWnd
-        self.__controller = MainWindowController(self, MWnd)
+        self.__controller = MainWindowController()
         self.__changeSetWnd = None
 
         self.initCombos()
@@ -238,37 +238,38 @@ class Ui_MWnd(object):
                                                          "../settingsTemplates",
                                                          "Файлы настроек (*.json)",
                                                          options=options)
-        self.__controller.openSettings(fName, self.__meWnd.CBLangVal.currenrData())
-        self.__meWnd.CBLangVal.setCurrentIndex(self.__meWnd.CBLangVal.findData(self.__controller.getSettings().lang))
+        self.__controller.setupLangAndSw(self.CBLangVal.currentData())
+        self.__controller.openSettings(fName, self.CBLangVal.currentData())
+        self.CBLangVal.setCurrentIndex(self.CBLangVal.findData(self.__controller.getSettings().lang))
 
     def __changeSettings(self):
         if not self.__changeSetWnd:
             self.__initOntoWnd()
-        self.__controller.setupLangAndSw(self.__meWnd.CBLangVal.currenrData())
+        self.__controller.setupLangAndSw(self.CBLangVal.currentData())
         self.__changeSetUI.setupUi(self.__changeSetWnd, self.__controller.getSettings(), view.OntoWindow.ViewType.EDIT)
         self.__changeSetWnd.show()
 
     def __viewSettings(self):
         if not self.__changeSetWnd:
             self.__initOntoWnd()
-        self.__controller.setupLangAndSw(self.__meWnd.CBLangVal.currenrData())
+        self.__controller.setupLangAndSw(self.CBLangVal.currentData())
         self.__changeSetUI.setupUi(self.__changeSetWnd, self.__controller.getSettings(), view.OntoWindow.ViewType.VIEW)
         self.__changeSetWnd.show()
 
     def __clust(self):
         try:
             wndData = {
-                "Corpora": self.__meWnd.CBCorpVal.currentData(),
-                "Lang": self.__meWnd.CBLangVal.currentData()
+                "Corpora": self.CBCorpVal.currentData(),
+                "Lang": self.CBLangVal.currentData()
             }
             metrix = self.__controller.clust(wndData)
             if metrix:
                 if wndData['Corpora'] != Corpora.USER:
-                    self.__meWnd.LHomogenVal.setText("Однородность: %0.3f" % metrix.homogen)
-                    self.__meWnd.LCompletenessVal.setText("Полнота: %0.3f" % metrix.completeness)
-                    self.__meWnd.LVMeasVal.setText("V-мера: %0.3f" % metrix.vMeas)
-                    self.__meWnd.BGetPlots.setEnabled(True)
-                self.__meWnd.LWTimeVal.setText("Время работы: %0.1f с." % metrix.time)
+                    self.LHomogenVal.setText("Однородность: %0.3f" % metrix.homogen)
+                    self.LCompletenessVal.setText("Полнота: %0.3f" % metrix.completeness)
+                    self.LVMeasVal.setText("V-мера: %0.3f" % metrix.vMeas)
+                    self.BGetPlots.setEnabled(True)
+                self.LWTimeVal.setText("Время работы: %0.1f с." % metrix.time)
         except MemoryError as e:
             error = QtWidgets.QErrorMessage(self.__meWnd)
             error.setWindowTitle("Ошибка.")
