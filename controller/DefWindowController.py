@@ -12,4 +12,6 @@ class DefWindowController:
         self.__model.settings = settings
 
     def saveParam(self, wndData):
-        pass
+        if not wndData:
+            return
+        self.__model.saveParam(wndData)

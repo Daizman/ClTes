@@ -154,6 +154,8 @@ class Ui_DefWindow(object):
         self.settings = settings
         self.viewType = viewType
         self.defin = defin
+        self.newSW = []
+        self.removeSW = []
 
         self.retranslateUi(MainWindow)
         self.setupAll()
@@ -190,7 +192,7 @@ class Ui_DefWindow(object):
         self.BClose.setText(_translate("MainWindow", "Закрыть"))
 
     def __initDefinDict(self):
-        self.definDict = {
+        self.__definDict = {
             Defins.NORMALIZATION: '«Нормализация текста» - уменьшение размерности текста '
                                   'при помощи уменьшения его разреженности.',
             Defins.VECTORIZATION: '«Векторизация текста» - представление текста в виде вектора критериев'
@@ -494,75 +496,17 @@ class Ui_DefWindow(object):
             "LEVal": self.LEVal.text().strip(),
             "LEVal2": self.LEVal2.text().strip(),
             "LEVal3": self.LEVal3.text().strip(),
-            "CBUse": self.CBUse.isChecked()
+            "CBUse": self.CBUse.isChecked(),
+            "newSW": self.newSW,
+            "removeSW": self.removeSW
         }
-        self.__controller.saveParam(wndData)
-        if self.defin == Defins.VECTORIZATION:
-            self.settings.vectMeth = self.CBVal.currentData()
-            self.mainWindow.prevWindow.settings.vectMeth = self.settings.vectMeth
-            if self.settings.vectMeth == VectorizationType.DISTR:
-                self.mainWindow.prevWindow.settings.distrEpoch = int(self.LEVal2.text().strip())
+        try:
+            self.__controller.saveParam(wndData)
+        except BaseException as e:
+            error = QtWidgets.QErrorMessage(self.mainWindow)
+            error.setWindowTitle("Предупреждение.")
+            error.showMessage(str(e))
 
-        if self.defin == Defins.CLUST:
-            self.settings.clustMeth = self.CBVal.currentData()
-            self.mainWindow.prevWindow.settings.clustMeth = self.settings.clustMeth
-            self.settings.clustCnt = int(self.LEVal.text().strip())
-            self.mainWindow.prevWindow.settings.clustCnt = self.settings.clustCnt
-
-            if self.settings.clustMeth == ClusterizationType.KMEANS or self.settings.clustMeth == ClusterizationType.MINIBATCH_KMEANS:
-                self.settings.maxIters = int(self.LEVal2.text().strip())
-                self.mainWindow.prevWindow.settings.maxIters = self.settings.maxIters
-            elif self.settings.clustMeth == ClusterizationType.BIRCH:
-                self.settings.similPers = float(self.LEVal2.text().strip())
-                if self.settings.similPers > 1:
-                    error = QtWidgets.QErrorMessage(self.mainWindow)
-                    error.setWindowTitle("Предупреждение.")
-                    error.showMessage("Максимальная кластеров должна быть меньше или равна 1")
-                    return
-                self.mainWindow.prevWindow.settings.similPers = self.settings.similPers
-            elif self.settings.similPers == ClusterizationType.SPECTRAL:
-                self.settings.minClustSize = int(self.LEVal2.text().strip())
-                self.mainWindow.prevWindow.settings.minClustSize = self.settings.minClustSize
-
-        if self.defin == Defins.LEM:
-            self.settings.useLem = self.CBUse.isChecked()
-            self.mainWindow.prevWindow.settings.useLem = self.settings.useLem
-            self.mainWindow.prevWindow.settings.pos = self.CBVal.currentData()
-
-        if self.defin == Defins.STEM:
-            self.settings.useStem = self.CBUse.isChecked()
-            self.mainWindow.prevWindow.settings.useStem = self.settings.useStem
-
-        if self.defin == Defins.TOKEN:
-            self.settings.useTokenFilter = self.CBUse.isChecked()
-            self.mainWindow.prevWindow.settings.useTokenFilter = self.settings.useTokenFilter
-            self.settings.maxWordFq = float(self.LEVal3.text().strip())
-            if self.settings.maxWordFq > 1:
-                error = QtWidgets.QErrorMessage(self.mainWindow)
-                error.setWindowTitle("Предупреждение.")
-                error.showMessage("Максимальная частота слова должна быть меньше или равна 1")
-                return
-            self.settings.minWordCnt = int(self.LEVal2.text().strip())
-            self.settings.maxDictSize = int(self.LEVal.text().strip())
-            self.mainWindow.prevWindow.settings.maxWordFq = self.settings.maxWordFq
-            self.mainWindow.prevWindow.settings.minWordCnt = self.settings.minWordCnt
-            self.mainWindow.prevWindow.settings.maxDictSize = self.settings.maxDictSize
-
-        if self.defin == Defins.SW:
-            self.settings.useSW = self.CBUse.isChecked()
-            self.mainWindow.prevWindow.settings.useSW = self.settings.useSW
-            for word in self.newSW:
-                self.settings.sw.append(word)
-            for word in self.removeSW:
-                if word in self.settings.sw:
-                    self.settings.sw.remove(word)
-            self.mainWindow.prevWindow.settings.sw = self.settings.sw
-
-        if self.defin == Defins.NGRAMM:
-            self.settings.useGramms = self.CBUse.isChecked()
-            self.mainWindow.prevWindow.settings.useGramms = self.settings.useGramms
-            self.settings.grammsSize = int(self.LEVal.text().strip())
-            self.mainWindow.prevWindow.settings.grammsSize = self.settings.grammsSize
         self.mainWindow.close()
 
 
