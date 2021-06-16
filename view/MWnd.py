@@ -10,7 +10,7 @@ import textract
 class Ui_MWnd(object):
     def setupUi(self, MWnd):
         MWnd.setObjectName("MWnd")
-        MWnd.resize(477, 260)
+        MWnd.resize(677, 260)
         self.WMain = QtWidgets.QWidget(MWnd)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -92,6 +92,28 @@ class Ui_MWnd(object):
         self.LCompletenessVal = QtWidgets.QLabel(self.GBMetr)
         self.LCompletenessVal.setObjectName("LCompletenessVal")
         self.GLMetr.addWidget(self.LCompletenessVal, 1, 1, 1, 1)
+
+        self.LDaviesBouldin = QtWidgets.QLabel(self.GBMetr)
+        self.LDaviesBouldin.setObjectName("LDaviesBouldin")
+        self.GLMetr.addWidget(self.LDaviesBouldin, 4, 0, 1, 1)
+        self.LDaviesBouldinVal = QtWidgets.QLabel(self.GBMetr)
+        self.LDaviesBouldinVal.setObjectName("LDaviesBouldinVal")
+        self.GLMetr.addWidget(self.LDaviesBouldinVal, 4, 1, 1, 1)
+
+        self.LSilhouette = QtWidgets.QLabel(self.GBMetr)
+        self.LSilhouette.setObjectName("LSilhouette")
+        self.GLMetr.addWidget(self.LSilhouette, 5, 0, 1, 1)
+        self.LSilhouetteVal = QtWidgets.QLabel(self.GBMetr)
+        self.LSilhouetteVal.setObjectName("LSilhouetteVal")
+        self.GLMetr.addWidget(self.LSilhouetteVal, 5, 1, 1, 1)
+
+        self.LCalinski = QtWidgets.QLabel(self.GBMetr)
+        self.LCalinski.setObjectName("LCalinski")
+        self.GLMetr.addWidget(self.LCalinski, 6, 0, 1, 1)
+        self.LCalinskiVal = QtWidgets.QLabel(self.GBMetr)
+        self.LCalinskiVal.setObjectName("LCalinskiVal")
+        self.GLMetr.addWidget(self.LCalinskiVal, 6, 1, 1, 1)
+
         self.LVMeas = QtWidgets.QLabel(self.GBMetr)
         self.LVMeas.setObjectName("LVMeas")
         self.GLMetr.addWidget(self.LVMeas, 2, 0, 1, 1)
@@ -158,6 +180,12 @@ class Ui_MWnd(object):
         self.LHomogenVal.setText(_translate("MWnd", ""))
         self.LCompleteness.setText(_translate("MWnd", "Полнота:"))
         self.LCompletenessVal.setText(_translate("MWnd", ""))
+        self.LDaviesBouldin.setText(_translate("MWnd", "Индекс Болдуина:"))
+        self.LDaviesBouldinVal.setText(_translate("MWnd", ""))
+        self.LSilhouette.setText(_translate("MWnd", "Силуэт:"))
+        self.LSilhouetteVal.setText(_translate("MWnd", ""))
+        self.LCalinski.setText(_translate("MWnd", "Индекс Calinski:"))
+        self.LCalinskiVal.setText(_translate("MWnd", ""))
         self.LVMeas.setText(_translate("MWnd", "V-мера:"))
         self.LVMeasVal.setText(_translate("MWnd", ""))
         self.LWTime.setText(_translate("MWnd", "Время кластеризации:"))
@@ -271,6 +299,10 @@ class Ui_MWnd(object):
                     self.LVMeasVal.setText("V-мера: %0.3f" % metrix.vMeas)
                     self.BGetPlots.setEnabled(True)
                 self.LWTimeVal.setText("Время работы: %0.1f с." % metrix.time)
+                self.LDaviesBouldinVal.setText("Индекс Болдуина: %0.3f" % metrix.daviesBouldin)
+                self.LSilhouetteVal.setText("Силуэт: %0.3f" % metrix.silhouette)
+                self.LCalinskiVal.setText("Индекс Calinski: %0.3f" % metrix.calinski)
+
         except MemoryError as e:
             error = QtWidgets.QErrorMessage(self.__meWnd)
             error.setWindowTitle("Ошибка.")

@@ -28,6 +28,7 @@ class MainWindowController:
             self.__model.calcMetrix()
             self.__model.saveMetrix(wndData['Corpora'])
         else:
+            self.__model.calcDefMetrix()
             self.__model.sortUserFiles()
 
         return self.__model.metrix

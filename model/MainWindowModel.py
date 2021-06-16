@@ -87,9 +87,15 @@ class MainWindowModel:
         self.metrix.time = time() - t0
 
     def calcMetrix(self):
+        self.calcDefMetrix()
         self.metrix.homogen = metrics.homogeneity_score(self.__labels, self.__km.labels_)
         self.metrix.completeness = metrics.completeness_score(self.__labels, self.__km.labels_)
         self.metrix.vMeas = metrics.v_measure_score(self.__labels, self.__km.labels_)
+
+    def calcDefMetrix(self):
+        self.metrix.daviesBouldin = metrics.davies_bouldin_score(self.__x, self.__km.labels_)
+        self.metrix.silhouette = metrics.silhouette_score(self.__x, self.__km.labels_, metric='euclidean')
+        self.metrix.calinski = metrics.calinski_harabasz_score(self.__x, self.__km.labels_)
 
     def saveMetrix(self, corp):
         if not os.path.exists(os.pardir + '/metricRes'):
