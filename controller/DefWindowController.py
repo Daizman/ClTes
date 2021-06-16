@@ -1,20 +1,15 @@
+from model.DefWindowModel import DefWindowModel
+
+
 class DefWindowController:
-    def __init__(self, settings, me, meWnd):
-        self.__settings = settings
-        self.__me = me
-        self.__meWnd = meWnd
+    def __init__(self, settings):
+        self.__model = DefWindowModel(settings)
 
-    def addSW(self):
-        pass
+    def getSettings(self):
+        return self.__model.settings
 
-    def removeSW(self):
-        pass
+    def setSettings(self, settings):
+        self.__model.settings = settings
 
-    def checkConflict(self):
-        pass
-
-    def checkDef(self):
-        pass
-
-    def saveParam(self):
+    def saveParam(self, wndData):
         pass
