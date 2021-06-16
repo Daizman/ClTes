@@ -10,6 +10,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from model.enums.Lang import Lang
 from model.enums.Corpora import Corpora
 from controller.MainWindowController import MainWindowController
+import view.OntoWindow
 
 import textract
 
@@ -141,8 +142,9 @@ class Ui_MWnd(object):
         self.statusbar.setObjectName("statusbar")
         MWnd.setStatusBar(self.statusbar)
 
-        self.mainWindow = MWnd
+        self.__meWnd = MWnd
         self.__controller = MainWindowController(self, MWnd)
+        self.__changeSetWnd = None
 
         self.initCombos()
         self.initButtons()
@@ -199,7 +201,7 @@ class Ui_MWnd(object):
         if self.CBCorpVal.currentData() == Corpora.USER:
             options = QtWidgets.QFileDialog.Options()
             options |= QtWidgets.QFileDialog.DontUseNativeDialog
-            fNames, _ = QtWidgets.QFileDialog.getOpenFileNames(self.mainWindow,
+            fNames, _ = QtWidgets.QFileDialog.getOpenFileNames(self.__meWnd,
                                                                 "Выбор файлов",
                                                                 "../../",
                                                                 "Файлы документов (*.txt, *.doc, *.docx);;Все файлы (*)",
@@ -217,16 +219,69 @@ class Ui_MWnd(object):
                 self.__controller.setUserTexts(uTexts)
                 self.__controller.setUserFNames(fNames)
             except:
-                error = QtWidgets.QErrorMessage(self.mainWindow)
+                error = QtWidgets.QErrorMessage(self.__meWnd)
                 error.setWindowTitle("Предупреждение.")
                 error.showMessage("Ошибка в имени одного из файлов")
 
     def initButtons(self):
-        self.BClust.clicked.connect(self.__controller.clust)
-        self.BOpenSet.clicked.connect(self.__controller.openSettings)
-        self.BEditSet.clicked.connect(self.__controller.changeSettings)
-        self.BViewOnto.clicked.connect(self.__controller.viewSettings)
+        self.BClust.clicked.connect(self.__clust)
+        self.BOpenSet.clicked.connect(self.__openSettings)
+        self.BEditSet.clicked.connect(self.__changeSettings)
+        self.BViewOnto.clicked.connect(self.__viewSettings)
         self.BGetPlots.clicked.connect(self.__controller.createPlots)
+
+    def __openSettings(self):
+        options = QtWidgets.QFileDialog.Options()
+        options |= QtWidgets.QFileDialog.DontUseNativeDialog
+        fName, _ = QtWidgets.QFileDialog.getOpenFileName(self.__meWnd,
+                                                         "Выбор файла настроек",
+                                                         "../settingsTemplates",
+                                                         "Файлы настроек (*.json)",
+                                                         options=options)
+        self.__controller.openSettings(fName, self.__meWnd.CBLangVal.currenrData())
+        self.__meWnd.CBLangVal.setCurrentIndex(self.__meWnd.CBLangVal.findData(self.__controller.getSettings().lang))
+
+    def __changeSettings(self):
+        if not self.__changeSetWnd:
+            self.__initOntoWnd()
+        self.__controller.setupLangAndSw(self.__meWnd.CBLangVal.currenrData())
+        self.__changeSetUI.setupUi(self.__changeSetWnd, self.__controller.getSettings(), view.OntoWindow.ViewType.EDIT)
+        self.__changeSetWnd.show()
+
+    def __viewSettings(self):
+        if not self.__changeSetWnd:
+            self.__initOntoWnd()
+        self.__controller.setupLangAndSw(self.__meWnd.CBLangVal.currenrData())
+        self.__changeSetUI.setupUi(self.__changeSetWnd, self.__controller.getSettings(), view.OntoWindow.ViewType.VIEW)
+        self.__changeSetWnd.show()
+
+    def __clust(self):
+        try:
+            wndData = {
+                "Corpora": self.__meWnd.CBCorpVal.currentData(),
+                "Lang": self.__meWnd.CBLangVal.currentData()
+            }
+            metrix = self.__controller.clust(wndData)
+            if metrix:
+                if wndData['Corpora'] != Corpora.USER:
+                    self.__meWnd.LHomogenVal.setText("Однородность: %0.3f" % metrix.homogen)
+                    self.__meWnd.LCompletenessVal.setText("Полнота: %0.3f" % metrix.completeness)
+                    self.__meWnd.LVMeasVal.setText("V-мера: %0.3f" % metrix.vMeas)
+                    self.__meWnd.BGetPlots.setEnabled(True)
+                self.__meWnd.LWTimeVal.setText("Время работы: %0.1f с." % metrix.time)
+        except MemoryError as e:
+            error = QtWidgets.QErrorMessage(self.__meWnd)
+            error.setWindowTitle("Ошибка.")
+            error.showMessage("Недостаточно памяти.")
+        except BaseException as e:
+            error = QtWidgets.QErrorMessage(self.__meWnd)
+            error.setWindowTitle("Ошибка.")
+            error.showMessage(str(e))
+
+    def __initOntoWnd(self):
+        self.__changeSetWnd = QtWidgets.QMainWindow()
+        self.__changeSetUI = view.OntoWindow.Ui_MainWindow()
+        self.__changeSetWnd.prevWindow = self.__meWnd
 
 
 if __name__ == "__main__":

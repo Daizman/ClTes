@@ -337,8 +337,8 @@ class Ui_MainWindow(object):
 
         self.mainWindow = MainWindow
         self.settings = settings
-        self.localSettings = settings
-        self.openType = openType
+        self.__localSettings = settings
+        self.__openType = openType
 
         self.initDefDict()
         self.initWndView()
@@ -529,7 +529,7 @@ class Ui_MainWindow(object):
         self.checkLClearDataIsVert()
 
     def closeEvent(self, event):
-        if self.openType == ViewType.VIEW:
+        if self.__openType == ViewType.VIEW:
             event.accept()
             return
         reply = QtWidgets.QMessageBox.question(self.mainWindow, 'Сохранение настроек', 'Сохранить настройки в сессии?',
@@ -540,10 +540,10 @@ class Ui_MainWindow(object):
         event.accept()
 
     def initWndView(self):
-        self.BSaveInFile.setEnabled(self.openType == ViewType.EDIT)
-        self.BLocalSave.setEnabled(self.openType == ViewType.EDIT)
-        self.BLoadFromFile.setEnabled(self.openType == ViewType.EDIT)
-        self.BExit.setEnabled(self.openType == ViewType.EDIT)
+        self.BSaveInFile.setEnabled(self.__openType == ViewType.EDIT)
+        self.BLocalSave.setEnabled(self.__openType == ViewType.EDIT)
+        self.BLoadFromFile.setEnabled(self.__openType == ViewType.EDIT)
+        self.BExit.setEnabled(self.__openType == ViewType.EDIT)
 
     def checkLPrepVert(self):
         if self.LbPrepMethUseFor.isHidden() and self.LbReduceIs.isHidden():
@@ -587,7 +587,7 @@ class Ui_MainWindow(object):
         f_name = f_name if f_name.endswith('.json') else f_name + '.json'
 
         with open(f_name, "w") as dump:
-            self.settings = self.localSettings
+            self.settings = self.__localSettings
             sw = self.settings.sw
             self.mainWindow.prevWindow.CBLangVal.setCurrentIndex(
                 self.mainWindow.prevWindow.CBLangVal.findData(self.settings.lang))
@@ -597,14 +597,14 @@ class Ui_MainWindow(object):
             dump.write(dumpStr)
 
     def saveSettsLocal(self):
-        self.settings = self.localSettings
+        self.settings = self.__localSettings
         sw = self.settings.sw
         self.mainWindow.prevWindow.CBLangVal.setCurrentIndex(self.mainWindow.prevWindow.CBLangVal.findData(self.settings.lang))
         self.settings.sw = sw
         self.mainWindow.prevWindow.controller.settings = self.settings
 
     def cancelWnd(self):
-        self.localSettings = self.settings
+        self.__localSettings = self.settings
         self.mainWindow.close()
 
     def openSettings(self):
@@ -643,97 +643,97 @@ class Ui_MainWindow(object):
                                      setts['useTokenFilter'],
                                      setts['distrEpoch'])
 
-            self.localSettings = self.settings
+            self.__localSettings = self.settings
 
     def openNormalizeDef(self):
         self.normalizeDef = QtWidgets.QMainWindow()
         self.normalizeDef.prevWindow = self
         self.normalizeUI = DefWindow.Ui_DefWindow()
-        self.normalizeUI.setupUi(self.normalizeDef, self.localSettings, self.openType, Defins.NORMALIZATION)
+        self.normalizeUI.setupUi(self.normalizeDef, self.__localSettings, self.__openType, Defins.NORMALIZATION)
         self.normalizeDef.show()
 
     def openVectorizeDef(self):
         self.vectorizeDef = QtWidgets.QMainWindow()
         self.vectorizeDef.prevWindow = self
         self.vectorizeUI = DefWindow.Ui_DefWindow()
-        self.vectorizeUI.setupUi(self.vectorizeDef, self.localSettings, self.openType, Defins.VECTORIZATION)
+        self.vectorizeUI.setupUi(self.vectorizeDef, self.__localSettings, self.__openType, Defins.VECTORIZATION)
         self.vectorizeDef.show()
 
     def openPrepMethDef(self):
         self.prepMethDef = QtWidgets.QMainWindow()
         self.prepMethDef.prevWindow = self
         self.prepMethUI = DefWindow.Ui_DefWindow()
-        self.prepMethUI.setupUi(self.prepMethDef, self.localSettings, self.openType, Defins.PREPMETH)
+        self.prepMethUI.setupUi(self.prepMethDef, self.__localSettings, self.__openType, Defins.PREPMETH)
         self.prepMethDef.show()
 
     def openReduceDimDef(self):
         self.reduceDef = QtWidgets.QMainWindow()
         self.reduceDef.prevWindow = self
         self.reduceUI = DefWindow.Ui_DefWindow()
-        self.reduceUI.setupUi(self.reduceDef, self.localSettings, self.openType, Defins.REDUCEDIM)
+        self.reduceUI.setupUi(self.reduceDef, self.__localSettings, self.__openType, Defins.REDUCEDIM)
         self.reduceDef.show()
 
     def openPrepDef(self):
         self.prepDef = QtWidgets.QMainWindow()
         self.prepDef.prevWindow = self
         self.prepUI = DefWindow.Ui_DefWindow()
-        self.prepUI.setupUi(self.prepDef, self.localSettings, self.openType, Defins.PREP)
+        self.prepUI.setupUi(self.prepDef, self.__localSettings, self.__openType, Defins.PREP)
         self.prepDef.show()
 
     def openClustDef(self):
         self.clustDef = QtWidgets.QMainWindow()
         self.clustDef.prevWindow = self
         self.clustUI = DefWindow.Ui_DefWindow()
-        self.clustUI.setupUi(self.clustDef, self.localSettings, self.openType, Defins.CLUST)
+        self.clustUI.setupUi(self.clustDef, self.__localSettings, self.__openType, Defins.CLUST)
         self.clustDef.show()
 
     def openStemDef(self):
         self.stemDef = QtWidgets.QMainWindow()
         self.stemDef.prevWindow = self
         self.stemUI = DefWindow.Ui_DefWindow()
-        self.stemUI.setupUi(self.stemDef, self.localSettings, self.openType, Defins.STEM)
+        self.stemUI.setupUi(self.stemDef, self.__localSettings, self.__openType, Defins.STEM)
         self.stemDef.show()
 
     def openLemDef(self):
         self.lemDef = QtWidgets.QMainWindow()
         self.lemDef.prevWindow = self
         self.lemUI = DefWindow.Ui_DefWindow()
-        self.lemUI.setupUi(self.lemDef, self.localSettings, self.openType, Defins.LEM)
+        self.lemUI.setupUi(self.lemDef, self.__localSettings, self.__openType, Defins.LEM)
         self.lemDef.show()
 
     def openFilterDef(self):
         self.filterDef = QtWidgets.QMainWindow()
         self.filterDef.prevWindow = self
         self.filterUI = DefWindow.Ui_DefWindow()
-        self.filterUI.setupUi(self.filterDef, self.localSettings, self.openType, Defins.FILTER)
+        self.filterUI.setupUi(self.filterDef, self.__localSettings, self.__openType, Defins.FILTER)
         self.filterDef.show()
 
     def openSWDef(self):
         self.swDef = QtWidgets.QMainWindow()
         self.swDef.prevWindow = self
         self.swUI = DefWindow.Ui_DefWindow()
-        self.swUI.setupUi(self.swDef, self.localSettings, self.openType, Defins.SW)
+        self.swUI.setupUi(self.swDef, self.__localSettings, self.__openType, Defins.SW)
         self.swDef.show()
 
     def openTokenDef(self):
         self.tokenDef = QtWidgets.QMainWindow()
         self.tokenDef.prevWindow = self
         self.tokeneUI = DefWindow.Ui_DefWindow()
-        self.tokeneUI.setupUi(self.tokenDef, self.localSettings, self.openType, Defins.TOKEN)
+        self.tokeneUI.setupUi(self.tokenDef, self.__localSettings, self.__openType, Defins.TOKEN)
         self.tokenDef.show()
 
     def openClearDataDef(self):
         self.clearDataDef = QtWidgets.QMainWindow()
         self.clearDataDef.prevWindow = self
         self.clearDataUI = DefWindow.Ui_DefWindow()
-        self.clearDataUI.setupUi(self.clearDataDef, self.localSettings, self.openType, Defins.CLEARDATA)
+        self.clearDataUI.setupUi(self.clearDataDef, self.__localSettings, self.__openType, Defins.CLEARDATA)
         self.clearDataDef.show()
 
     def openNGrammDef(self):
         self.nGrammDef = QtWidgets.QMainWindow()
         self.nGrammDef.prevWindow = self
         self.nGrammUI = DefWindow.Ui_DefWindow()
-        self.nGrammUI.setupUi(self.nGrammDef, self.localSettings, self.openType, Defins.NGRAMM)
+        self.nGrammUI.setupUi(self.nGrammDef, self.__localSettings, self.__openType, Defins.NGRAMM)
         self.nGrammDef.show()
 
 

@@ -3,9 +3,6 @@ from model.Settings import Settings
 from model.LangVectorize import LangVectorize
 from model.Clust import Clust
 
-from PyQt5 import QtWidgets
-from view.OntoWindow import Ui_MainWindow
-
 from model.mixins.JsonEnumExtention import *
 
 import matplotlib.pyplot as plt
@@ -20,11 +17,9 @@ from sklearn.datasets import fetch_20newsgroups
 
 
 class MainWindowModel:
-    def __init__(self, me, meWnd):
+    def __init__(self):
         self.settings = Settings()
         self.metrix = Metrix()
-        self.__me = me
-        self.__meWnd = meWnd
         self.__userTexts = []
         self.__dirToAnswer = ""
         self.__x = []
@@ -35,9 +30,8 @@ class MainWindowModel:
         self.__changeSetWnd = None
         self.__changeSetUI = None
 
-    def openSettigns(self, fName):
-        if self.settings.lang != self.__me.CBLangVal.currentData():
-            self.settings.lang = self.__me.CBLangVal.currentData()
+    def openSettigns(self, fName, lang):
+        self.settings.lang = lang
 
         if not fName:
             return
@@ -67,38 +61,14 @@ class MainWindowModel:
                                      setts['useTokenFilter'],
                                      setts['distrEpoch'])
 
-    def changeSettings(self):
-        if not self.__changeSetWnd:
-            self.__initOntoWnd()
-
-        if self.settings.lang != self.__me.CBLangVal.currentData():
-            self.settings.lang = self.__me.CBLangVal.currentData()
+    def setupLangAndSw(self, lang):
+        if self.settings.lang != lang:
+            self.settings.lang = lang
             self.settings.sw = nltk_sw.words('russian') if self.settings.lang == Lang.RUS else nltk_sw.words('english')
 
-        self.settings.lang = self.__me.CBLangVal.currentData()
-        self.__changeSetUI.setupUi(self.__changeSetWnd, self.settings, ViewType.EDIT)
-        self.__changeSetWnd.show()
-
-    def viewSettings(self):
-        if not self.__changeSetWnd:
-            self.__initOntoWnd()
-
-        if self.settings.lang != self.__me.CBLangVal.currentData():
-            self.settings.lang = self.__me.CBLangVal.currentData()
-            self.settings.sw = nltk_sw.words('russian') if self.settings.lang == Lang.RUS else nltk_sw.words('english')
-
-        self.__changeSetUI.setupUi(self.__changeSetWnd, self.settings, ViewType.VIEW)
-        self.__changeSetWnd.show()
-
-    def __initOntoWnd(self):
-        self.__changeSetWnd = QtWidgets.QMainWindow()
-        self.__changeSetUI = Ui_MainWindow()
-        self.__changeSetWnd.prevWindow = self.__me
-
-    def clust(self):
-        self.initDataset()
-
-        self.settings.lang = self.__me.CBLangVal.currentData()
+    def clust(self, wndData):
+        self.setupLangAndSw(wndData["Lang"])
+        self.initDataset(wndData["Corpora"])
 
         t0 = time()
         self.vectorize()
@@ -121,12 +91,12 @@ class MainWindowModel:
         self.metrix.completeness = metrics.completeness_score(self.__labels, self.__km.labels_)
         self.metrix.vMeas = metrics.v_measure_score(self.__labels, self.__km.labels_)
 
-    def saveMetrix(self):
+    def saveMetrix(self, corp):
         if not os.path.exists(os.pardir + '/metricRes'):
             os.mkdir(os.pardir + '/metricRes')
         fName = os.pardir + '/metricRes/setup_' \
                 + str(self.settings.lang) + '_' \
-                + str(self.__me.CBCorpVal.currentData()) + '_' \
+                + str(corp) + '_' \
                 + str(self.settings.vectMeth) + '_' \
                 + str(self.settings.clustMeth) + '_' \
                 + str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').replace('-', '_') + '.txt'
@@ -178,8 +148,7 @@ class MainWindowModel:
         ax2.set_title('Предсказанное распределение документов по кластерам')
         fig.show()
 
-    def initDataset(self):
-        corp = self.__me.CBCorpVal.currentData()
+    def initDataset(self, corp):
         if corp == Corpora.NEWS:
             categories = ['alt.atheism',
                           'comp.graphics',
