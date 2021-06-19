@@ -82,20 +82,20 @@ class MainWindowModel:
             km = Clust.agglomerative(self.settings.clustCnt, self.__x)
         else:
             km = Clust.spectral(self.settings.clustCnt, self.settings.minClustSize, self.__x)
-        km.fit(self.__x)
+
         self.__km = km
         self.metrix.time = time() - t0
 
     def calcMetrix(self):
-        self.calcDefMetrix()
         self.metrix.homogen = metrics.homogeneity_score(self.__labels, self.__km.labels_)
         self.metrix.completeness = metrics.completeness_score(self.__labels, self.__km.labels_)
         self.metrix.vMeas = metrics.v_measure_score(self.__labels, self.__km.labels_)
+        self.calcDefMetrix()
 
     def calcDefMetrix(self):
-        self.metrix.daviesBouldin = metrics.davies_bouldin_score(self.__x, self.__km.labels_)
-        self.metrix.silhouette = metrics.silhouette_score(self.__x, self.__km.labels_, metric='euclidean')
-        self.metrix.calinski = metrics.calinski_harabasz_score(self.__x, self.__km.labels_)
+        self.metrix.daviesBouldin = metrics.davies_bouldin_score(self.__x.toarray(), self.__km.labels_)
+        self.metrix.silhouette = metrics.silhouette_score(self.__x.toarray(), self.__km.labels_, metric='euclidean')
+        self.metrix.calinski = metrics.calinski_harabasz_score(self.__x.toarray(), self.__km.labels_)
 
     def saveMetrix(self, corp):
         if not os.path.exists(os.pardir + '/metricRes'):
@@ -147,6 +147,10 @@ class MainWindowModel:
             pred_distr.append(pred_i)
         ax1.plot(clusters, orig_distr, 'o')
         ax2.plot(clusters, pred_distr, '*')
+        ax1.set_xlabel('Номер кластера')
+        ax1.set_ylabel('Количество текстов')
+        ax2.set_xlabel('Номер кластера')
+        ax2.set_ylabel('Количество текстов')
         ax1.grid()
         ax2.grid()
         plt.xticks(np.arange(0, self.settings.clustCnt))

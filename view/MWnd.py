@@ -264,8 +264,8 @@ class Ui_MWnd(object):
 
     def __initOntoWnd(self):
         self.__changeSetWnd = QtWidgets.QMainWindow()
+        self.__changeSetWnd.prevWindow = self
         self.__changeSetUI = view.OntoWindow.Ui_MainWindow()
-        self.__changeSetWnd.prevWindow = self.__meWnd
 
     def __changeSettings(self):
         if not self.__changeSetWnd:

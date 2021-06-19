@@ -579,7 +579,7 @@ class Ui_MainWindow(object):
 
     def __saveSettsLocal(self):
         self.settings = self.__localSettings
-        self.__meWnd.prevWindow.setSettigns(self.settings)
+        self.__meWnd.prevWindow.setSettings(self.settings)
 
     def __cancelWnd(self):
         self.__localSettings = self.settings
