@@ -14,6 +14,7 @@ from time import time
 from nltk.corpus import stopwords as nltk_sw
 from sklearn import metrics
 from sklearn.datasets import fetch_20newsgroups
+from xml.etree import ElementTree as ET
 
 
 class MainWindowModel:
@@ -197,7 +198,25 @@ class MainWindowModel:
         elif corp == Corpora.ENGWIKI:
             pass
         else:
-            pass
+            tree = ET.parse(r'D:\dip\Corpora\openCorporaTexts\openCorporaPureTexts.xml')
+            root = tree.getroot()
+            themes = root.find('themes').findall('theme')
+            self.__labels = []
+            self.__userTexts = []
+            themes = [theme.text for theme in themes]
+            themesCnt = len(themes)
+            barier = self.settings.clustCnt if self.settings.clustCnt <= themesCnt else themesCnt
+            for text in root.findall('text'):
+                attrib = text.attrib
+                if 'Тема' in attrib and barier > themes.index(attrib['Тема']):
+                    self.__labels.append(themes.index(attrib['Тема']))
+                #  elif 'Тема' not in attrib:
+                    # self.__labels.append(barier - 1)
+                else:
+                    continue
+                self.__userTexts.append(text.text)
+
+            self.__labels = np.asarray(self.__labels)
 
     def setUserTexts(self, uTexts):
         self.__userTexts = uTexts
