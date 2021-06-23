@@ -22,9 +22,8 @@ class DefWindowModel:
             elif self.settings.clustMeth == ClusterizationType.BIRCH:
                 self.settings.similPers = float(wndData["LEVal2"])
                 if self.settings.similPers > 1:
-                    raise BaseException("Максимальная кластеров должна быть меньше или равна 1")
-
-            elif self.settings.similPers == ClusterizationType.SPECTRAL:
+                    raise BaseException("Максимальная схожесть кластеров должна быть меньше или равна 1")
+            elif self.settings.clustMeth == ClusterizationType.SPECTRAL:
                 self.settings.minClustSize = int(wndData["LEVal2"])
 
         if wndData["Defin"] == Defins.LEM:

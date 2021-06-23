@@ -94,9 +94,21 @@ class MainWindowModel:
         self.calcDefMetrix()
 
     def calcDefMetrix(self):
-        self.metrix.daviesBouldin = metrics.davies_bouldin_score(self.__x.toarray(), self.__km.labels_)
-        self.metrix.silhouette = metrics.silhouette_score(self.__x.toarray(), self.__km.labels_, metric='euclidean')
-        self.metrix.calinski = metrics.calinski_harabasz_score(self.__x.toarray(), self.__km.labels_)
+        data = self.__x if type(self.__x) == list else self.__x.toarray()
+        onlyOneLabel = True
+        prev = self.__km.labels_[0]
+        for lab in self.__km.labels_[1:]:
+            if prev != lab:
+                onlyOneLabel = False
+                break
+            prev = lab
+
+        if onlyOneLabel:
+            self.__km.labels_[-1] += 1
+
+        self.metrix.daviesBouldin = metrics.davies_bouldin_score(data, self.__km.labels_)
+        self.metrix.silhouette = metrics.silhouette_score(data, self.__km.labels_, metric='euclidean')
+        self.metrix.calinski = metrics.calinski_harabasz_score(data, self.__km.labels_)
 
     def saveMetrix(self, corp):
         if not os.path.exists(os.pardir + '/metricRes'):
@@ -112,6 +124,9 @@ class MainWindowModel:
             metrSave.write("Однородность: %0.3f\n" % self.metrix.homogen)
             metrSave.write("Полнота: %0.3f\n" % self.metrix.completeness)
             metrSave.write("V-мера: %0.3f\n" % self.metrix.vMeas)
+            metrSave.write("Индекс Болдуина: %0.3f\n" % self.metrix.daviesBouldin)
+            metrSave.write("Силуэт: %0.3f\n" % self.metrix.silhouette)
+            metrSave.write("Индекс Calinski: %0.3f\n" % self.metrix.calinski)
             metrSave.write("Время работы: %0.1f с.\n\n\nНастройки:\n" % self.metrix.time)
 
             metrSave.write(str(self.settings))

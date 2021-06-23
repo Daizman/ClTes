@@ -1,4 +1,5 @@
 from sklearn import cluster
+import numpy as np
 
 
 class Clust:
@@ -29,5 +30,6 @@ class Clust:
     @staticmethod
     def agglomerative(clustCnt, vectorizedTexts):
         km = cluster.AgglomerativeClustering(n_clusters=clustCnt)
+        vectorizedTexts = np.asarray(vectorizedTexts) if type(vectorizedTexts) == list else vectorizedTexts.toarray()
         km.fit(vectorizedTexts)
         return km
