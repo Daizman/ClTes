@@ -209,9 +209,41 @@ class MainWindowModel:
                 if not os.path.exists(self.__dirToAnswer + '/%i' % i):
                     os.mkdir(self.__dirToAnswer + '/%i' % i)
         elif corp == Corpora.RUWIKI:
-            pass
+            tree = ET.parse(r'D:\dip\Corpora\ruwiki-20181001-corpus.xml')
+            root = tree.getroot()
+            themes = root.find('themes').findall('theme')
+            self.__labels = []
+            self.__userTexts = []
+            themes = [theme.text for theme in themes]
+            themesCnt = len(themes)
+            barier = self.settings.clustCnt if self.settings.clustCnt <= themesCnt else themesCnt
+            for text in root.findall('content'):
+                attrib = text.attrib
+                if 'theme' in attrib and barier > themes.index(attrib['theme']):
+                    self.__labels.append(themes.index(attrib['theme']))
+                else:
+                    continue
+                self.__userTexts.append(text.text)
+
+            self.__labels = np.asarray(self.__labels)
         elif corp == Corpora.ENGWIKI:
-            pass
+            tree = ET.parse(r'D:\dip\Corpora\enwiki-20181001-corpus.xml')
+            root = tree.getroot()
+            themes = root.find('themes').findall('theme')
+            self.__labels = []
+            self.__userTexts = []
+            themes = [theme.text for theme in themes]
+            themesCnt = len(themes)
+            barier = self.settings.clustCnt if self.settings.clustCnt <= themesCnt else themesCnt
+            for text in root.findall('content'):
+                attrib = text.attrib
+                if 'theme' in attrib and barier > themes.index(attrib['theme']):
+                    self.__labels.append(themes.index(attrib['theme']))
+                else:
+                    continue
+                self.__userTexts.append(text.text)
+
+            self.__labels = np.asarray(self.__labels)
         else:
             tree = ET.parse(r'D:\dip\Corpora\openCorporaTexts\openCorporaPureTexts.xml')
             root = tree.getroot()
